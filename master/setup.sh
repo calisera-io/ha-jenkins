@@ -13,4 +13,4 @@ mkdir -p /var/lib/jenkins/init.groovy.d
 mv /tmp/scripts/*.groovy /var/lib/jenkins/init.groovy.d/
 chown -R jenkins:jenkins /var/lib/jenkins/init.groovy.d
 
-systemctl enable --now jenkins
+systemctl enable jenkins

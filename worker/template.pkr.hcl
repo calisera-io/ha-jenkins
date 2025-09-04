@@ -15,6 +15,13 @@ source "amazon-ebs" "jenkins" {
   ami_name      = "jenkins-worker"
   ami_description = "Amazon Linux Image with Jenkins Worker"
   
+  launch_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size          = 8
+    volume_type          = "gp3"
+    delete_on_termination = true
+  }
+  
   source_ami_filter {
     filters = {
       virtualization-type = "hvm"
