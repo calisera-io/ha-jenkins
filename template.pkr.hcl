@@ -1,0 +1,58 @@
+variable "jenkins_admin" {
+  type    = string
+  default = "admin"
+}
+
+variable "jenkins_admin_password" {
+  type    = string
+  default = ""
+}
+
+variable "region" {
+  type    = string
+  default = "us-west-2"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t3.micro"
+}
+
+source "amazon-ebs" "jenkins" {
+  region        = var.region
+  instance_type = var.instance_type
+  ssh_username  = "ec2-user"
+  ami_name      = "jenkins-master-2.204.1"
+  ami_description = "Amazon Linux Image with Jenkins Server"
+  
+  source_ami_filter {
+    filters = {
+      virtualization-type = "hvm"
+      name                = "al2023-ami-*-x86_64"
+      root-device-type    = "ebs"
+    }
+    owners      = ["amazon"]
+    most_recent = true
+  }
+}
+
+build {
+  sources = ["source.amazon-ebs.jenkins"]
+
+  provisioner "file" {
+    source      = "./scripts"
+    destination = "/tmp/"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo sh -c 'echo JENKINS_ADMIN_ID=${var.jenkins_admin} >> /etc/environment'",
+      "sudo sh -c 'echo JENKINS_ADMIN_PASSWORD=${var.jenkins_admin_password} >> /etc/environment'"
+    ]
+  }
+
+  provisioner "shell" {
+    script          = "./setup.sh"
+    execute_command = "sudo -E -S sh '{{ .Path }}'"
+  }
+}

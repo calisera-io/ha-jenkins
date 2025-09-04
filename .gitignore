@@ -1,0 +1,19 @@
+### Packer ###
+# Cache objects
+packer_cache/
+
+# Crash log
+crash.log
+
+# Sensitive data
+*.pkrvars.hcl
+
+# For built boxes
+*.box
+
+### Packer Patch ###
+# ignore temporary output files
+output-*/
+
+### Key material
+*.pem
