@@ -40,12 +40,12 @@ build {
   sources = ["source.amazon-ebs.jenkins"]
 
   provisioner "file" {
-    source      = "./scripts"
+    source      = "${path.root}/scripts"
     destination = "/tmp/"
   }
 
   provisioner "file" {
-    source      = "./config"
+    source      = "${path.root}/config"
     destination = "/tmp/"
   }
 
@@ -57,7 +57,7 @@ build {
   }
 
   provisioner "shell" {
-    script          = "./setup.sh"
+    script          = "${path.root}/setup.sh"
     execute_command = "sudo -E -S sh '{{ .Path }}'"
   }
 }
