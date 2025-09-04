@@ -22,7 +22,7 @@ source "amazon-ebs" "jenkins" {
   region        = var.region
   instance_type = var.instance_type
   ssh_username  = "ec2-user"
-  ami_name      = "jenkins-master-2.204.1"
+  ami_name      = "jenkins-master"
   ami_description = "Amazon Linux Image with Jenkins Server"
   
   source_ami_filter {
@@ -41,6 +41,11 @@ build {
 
   provisioner "file" {
     source      = "./scripts"
+    destination = "/tmp/"
+  }
+
+  provisioner "file" {
+    source      = "./config"
     destination = "/tmp/"
   }
 
