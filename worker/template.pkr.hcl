@@ -9,19 +9,19 @@ variable "instance_type" {
 }
 
 source "amazon-ebs" "jenkins" {
-  region        = var.region
-  instance_type = var.instance_type
-  ssh_username  = "ec2-user"
-  ami_name      = "jenkins-worker"
+  region          = var.region
+  instance_type   = var.instance_type
+  ssh_username    = "ec2-user"
+  ami_name        = "jenkins-worker"
   ami_description = "Amazon Linux Image with Jenkins Worker"
-  
+
   launch_block_device_mappings {
     device_name           = "/dev/xvda"
-    volume_size          = 8
-    volume_type          = "gp3"
+    volume_size           = 8
+    volume_type           = "gp3"
     delete_on_termination = true
   }
-  
+
   source_ami_filter {
     filters = {
       virtualization-type = "hvm"
