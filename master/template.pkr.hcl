@@ -7,6 +7,11 @@ packer {
   }
 }
 
+locals {
+  jenkins_home = "/var/lib/jenkins"
+  jenkins_private_key_file = "/tmp/id_rsa"
+}
+
 variable "jenkins_admin" {
   type    = string
   default = "admin"
@@ -60,6 +65,15 @@ build {
 
   provisioner "shell" {
     inline = [
+      "cat > ${local.jenkins_private_key_file} << 'EOF'",
+      "${file("${path.root}/.ssh/id_rsa")}",
+      "EOF",
+      "chmod 600 ${local.jenkins_private_key_file}"
+    ]
+  }
+
+  provisioner "shell" {
+    inline = [
       "sudo sh -c 'echo JENKINS_ADMIN_ID=${var.jenkins_admin} >> /etc/environment'",
       "sudo sh -c 'echo JENKINS_ADMIN_PASSWORD=${var.jenkins_admin_password} >> /etc/environment'"
     ]
@@ -67,8 +81,7 @@ build {
 
   provisioner "shell" {
     environment_vars = [
-      "JENKINS_ADMIN_ID=${var.jenkins_admin}",
-      "JENKINS_ADMIN_PASSWORD=${var.jenkins_admin_password}"
+      "JENKINS_HOME=${local.jenkins_home}",
     ]
     script          = "${path.root}/setup.sh"
     execute_command = "sudo -E -S sh '{{ .Path }}'"

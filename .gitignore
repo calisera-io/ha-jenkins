@@ -16,4 +16,5 @@ crash.log
 output-*/
 
 ### Key material
+id_rsa*
 *.pem

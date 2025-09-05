@@ -1,5 +1,10 @@
 ## Create Jenkins Master AMI with Packer
 
+```bash
+cd master
+ssh-keygen -f .ssh/id_rsa -N '' -t rsa -b 4096
+```
+
 To override the `jenkins_admin` and `jenkins_admin_password` defaults create an ignored and untracked file `variables.auto.pkrvars.hcl` in the master directory that conains `jenkins_admin` and `jenkins_admin_password` variable definitions.
 ```bash
 cat master/variables.auto.pkrvars.hcl
