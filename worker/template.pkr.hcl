@@ -1,3 +1,12 @@
+packer {
+  required_plugins {
+    amazon = {
+      version = ">= 1.2.8"
+      source  = "github.com/hashicorp/amazon"
+    }
+  }
+}
+
 variable "region" {
   type    = string
   default = "us-west-2"
@@ -14,13 +23,6 @@ source "amazon-ebs" "jenkins" {
   ssh_username  = "ec2-user"
   ami_name      = "jenkins-worker"
   ami_description = "Amazon Linux Image with Jenkins Worker"
-  
-  launch_block_device_mappings {
-    device_name           = "/dev/xvda"
-    volume_size          = 8
-    volume_type          = "gp3"
-    delete_on_termination = true
-  }
   
   source_ami_filter {
     filters = {

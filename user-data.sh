@@ -31,17 +31,6 @@ instance.setAuthorizationStrategy(strategy)
 
 instance.save()
 EOF
-cat <<EOF > /var/lib/jenkins/init.groovy.d/skip-initial-setup.groovy
-#!groovy
-
-import jenkins.model.*
-import hudson.util.*;
-import jenkins.install.*;
-
-def instance = Jenkins.getInstance()
-
-instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
-EOF
 chown -R jenkins:jenkins /var/lib/jenkins/init.groovy.d
 
 systemctl enable --now jenkins

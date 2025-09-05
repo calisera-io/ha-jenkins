@@ -1,3 +1,12 @@
+packer {
+  required_plugins {
+    amazon = {
+      version = ">= 1.2.8"
+      source  = "github.com/hashicorp/amazon"
+    }
+  }
+}
+
 variable "jenkins_admin" {
   type    = string
   default = "admin"
@@ -5,7 +14,7 @@ variable "jenkins_admin" {
 
 variable "jenkins_admin_password" {
   type    = string
-  default = ""
+  default = "password"
 }
 
 variable "region" {
@@ -19,18 +28,11 @@ variable "instance_type" {
 }
 
 source "amazon-ebs" "jenkins" {
-  region        = var.region
-  instance_type = var.instance_type
-  ssh_username  = "ec2-user"
-  ami_name      = "jenkins-master"
+  region          = var.region
+  instance_type   = var.instance_type
+  ssh_username    = "ec2-user"
+  ami_name        = "jenkins-master"
   ami_description = "Amazon Linux Image with Jenkins Server"
-  
-  launch_block_device_mappings {
-    device_name           = "/dev/xvda"
-    volume_size          = 8
-    volume_type          = "gp3"
-    delete_on_termination = true
-  }
 
   source_ami_filter {
     filters = {
@@ -64,6 +66,10 @@ build {
   }
 
   provisioner "shell" {
+    environment_vars = [
+      "JENKINS_ADMIN_ID=${var.jenkins_admin}",
+      "JENKINS_ADMIN_PASSWORD=${var.jenkins_admin_password}"
+    ]
     script          = "${path.root}/setup.sh"
     execute_command = "sudo -E -S sh '{{ .Path }}'"
   }
