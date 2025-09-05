@@ -9,6 +9,7 @@ jenkins_admin_password = "hs!po+a?l12H="
 
 ```bash
 cd master
+packer init .
 packer fmt .
 packer validate .
 packer build .
