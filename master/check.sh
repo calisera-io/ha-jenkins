@@ -20,7 +20,7 @@ check_last_line() {
     local string="$2"
 
     local lastline
-    lastline=$(tail -n 1 "$file")
+    lastline=$(awk 'NF {line=$0} END {print line}' "$file")
 
     if [[ "$lastline" == "$string" ]]; then
         return 0   
@@ -94,7 +94,7 @@ if [ -d "$JENKINS_HOME/.ssh" ]; then
       ((errors++))
     fi
     if ! check_private_key_format "$JENKINS_HOME/.ssh/id_rsa"; then
-      echo "ERROR: Invalid or missing private key format"
+      echo "ERROR: Invalid private key format"
       ((errors++))
     fi
   else
@@ -107,7 +107,7 @@ else
 fi
 
 # Check Groovy init scripts
-if [ ! -d "$JENKINS_HOME/init.groovy.d" ]: then
+if [ ! -d "$JENKINS_HOME/init.groovy.d" ]; then
   echo "ERROR: Groovy init scripts directory not found at $JENKINS_HOME/init.groovy.d"
   ((errors++))
 fi 

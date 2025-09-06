@@ -33,9 +33,9 @@ rmdir /tmp/scripts
 #
 # install plugins
 #
-chmod u+x /tmp/config/install-plugins.sh
-/tmp/config/install-plugins.sh
-rm -rf /tmp/config
+chmod u+x /tmp/plugins/install-plugins.sh
+/tmp/plugins/install-plugins.sh
+rm -rf /tmp/plugins
 
 #
 # disable setup-wizard

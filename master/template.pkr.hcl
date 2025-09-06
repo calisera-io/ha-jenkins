@@ -58,14 +58,14 @@ build {
   }
 
   provisioner "file" {
-    source      = "${path.root}/config"
+    source      = "${path.root}/plugins"
     destination = "/tmp/"
   }
 
   provisioner "shell" {
     inline = [
       "cat > ${local.jenkins_private_key_file} << 'EOF'",
-      "${file("${path.root}/.ssh/id_rsa")}",
+      "${file("${path.root}/credentials/id_rsa")}",
       "EOF",
       "chmod 600 ${local.jenkins_private_key_file}"
     ]
