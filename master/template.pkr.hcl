@@ -84,7 +84,7 @@ build {
   }
 
   provisioner "shell" {
-    script          = "${path.root}/debug.sh"
+    script          = "${path.root}/check.sh"
     execute_command = "sudo -E -S sh '{{ .Path }}'"
   }
 

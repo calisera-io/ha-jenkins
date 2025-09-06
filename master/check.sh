@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+check_first_line() {
+    local file="$1"
+    local string="$2"
+
+    local firstline
+    firstline=$(head -n 1 "$file")
+
+    if [[ "$firstline" == "$string" ]]; then
+        return 0 
+    else
+        return 1   
+    fi
+}
+
+check_last_line() {
+    local file="$1"
+    local string="$2"
+
+    local lastline
+    lastline=$(tail -n 1 "$file")
+
+    if [[ "$lastline" == "$string" ]]; then
+        return 0   
+    else
+        return 1  
+    fi
+}
+
+check_private_key_format() {
+    local file="$1"
+    local first_line="-----BEGIN OPENSSH PRIVATE KEY-----"
+    local last_line="-----END OPENSSH PRIVATE KEY-----"
+
+    if check_first_line "$file" "$first_line" && check_last_line "$file" "$last_line"; then
+        return 0 
+    else
+        return 1  
+    fi
+}
+
+check_file_perms() {
+    local file="$1"
+    local expected="$2"
+    local perms
+
+    perms=$(stat -c '%a' "$file" 2>/dev/null) || return 1
+
+    if [[ "$perms" == "$expected" ]]; then
+        return 0  
+    else
+        return 1 
+    fi
+}
+
+check_environment() {
+  local file="$1"
+  if ! grep -q "JENKINS_ADMIN_ID" "$file"; then
+    return 1
+  fi
+  if ! grep -q "JENKINS_ADMIN_PASSWORD" "$file"; then
+    return 1
+  fi
+  return 0
+}
+
+JENKINS_HOME=${JENKINS_HOME:-/var/lib/jenkins}
+
+errors=0
+
+# Check environment configuration
+if ! check_environment "/etc/environment"; then
+  echo "ERROR: Environment configuration missing"
+  ((errors++))
+fi
+
+# Check Jenkins home directory
+if [ ! -d "$JENKINS_HOME" ]; then
+  echo "ERROR: Jenkins home directory not found at $JENKINS_HOME"
+  ((errors++))
+fi
+
+# Check SSH configuration
+if [ -d "$JENKINS_HOME/.ssh" ]; then
+  if [ -f "$JENKINS_HOME/.ssh/id_rsa" ]; then
+    if ! check_file_perms "$JENKINS_HOME/.ssh" "700"; then
+      echo "ERROR: Incorrect permissions for .ssh directory"
+      ((errors++))
+    fi
+    if ! check_file_perms "$JENKINS_HOME/.ssh/id_rsa" "600"; then
+      echo "ERROR: Incorrect permissions for private key"
+      ((errors++))
+    fi
+    if ! check_private_key_format "$JENKINS_HOME/.ssh/id_rsa"; then
+      echo "ERROR: Invalid or missing private key format"
+      ((errors++))
+    fi
+  else
+    echo "ERROR: Private key not found at $JENKINS_HOME/.ssh/id_rsa"
+    ((errors++))
+  fi
+else
+  echo "ERROR: SSH directory not found at $JENKINS_HOME/.ssh"
+  ((errors++))
+fi
+
+# Check Groovy init scripts
+if [ ! -d "$JENKINS_HOME/init.groovy.d" ]: then
+  echo "ERROR: Groovy init scripts directory not found at $JENKINS_HOME/init.groovy.d"
+  ((errors++))
+fi 
+
+# Check plugins
+if [ ! -d "$JENKINS_HOME/plugins" ]; then
+  echo "ERROR: Plugins directory not found at $JENKINS_HOME/plugins"
+  ((errors++))
+fi
+
+if [ $errors -gt 0 ]; then
+  echo -e "\nFound $errors error(s)"
+  exit 1
+else
+  echo -e "\nAll checks passed"
+  exit 0
+fi

@@ -17,9 +17,9 @@ export JENKINS_HOME=/var/lib/jenkins
 #
 mkdir $JENKINS_HOME/.ssh
 touch $JENKINS_HOME/.ssh/known_hosts
-chmod 0700 $JENKINS_HOME/.ssh
+chmod 700 $JENKINS_HOME/.ssh
 mv /tmp/id_rsa $JENKINS_HOME/.ssh/id_rsa
-chmod 0600 $JENKINS_HOME/.ssh/id_rsa
+chmod 600 $JENKINS_HOME/.ssh/id_rsa
 chown -R jenkins:jenkins $JENKINS_HOME/.ssh
 
 #
