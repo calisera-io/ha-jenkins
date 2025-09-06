@@ -8,7 +8,6 @@ packer {
 }
 
 locals {
-  jenkins_home = "/var/lib/jenkins"
   jenkins_private_key_file = "/tmp/id_rsa"
 }
 
@@ -80,10 +79,13 @@ build {
   }
 
   provisioner "shell" {
-    environment_vars = [
-      "JENKINS_HOME=${local.jenkins_home}",
-    ]
     script          = "${path.root}/setup.sh"
     execute_command = "sudo -E -S sh '{{ .Path }}'"
   }
+
+  provisioner "shell" {
+    script          = "${path.root}/debug.sh"
+    execute_command = "sudo -E -S sh '{{ .Path }}'"
+  }
+
 }

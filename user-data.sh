@@ -49,18 +49,6 @@ jenkinsLocationConfiguration.setUrl(newUrl)
 
 jenkinsLocationConfiguration.save()
 EOF
-cat <<EOF > /var/lib/jenkins/init.groovy.d/skip-initial-setup.groovy
-#!groovy
-
-import jenkins.model.*
-import hudson.util.*;
-import jenkins.install.*;
-
-def instance = Jenkins.getInstance()
-def state = InstallState.INITIAL_SETUP_COMPLETED
-InstallStateProceededListener.completed(instance, state)
-instance.setInstallState(state)
-EOF
 chown -R jenkins:jenkins /var/lib/jenkins/init.groovy.d
 
 mkdir -p /tmp/config
@@ -212,5 +200,9 @@ echo "all done"
 EOF
 chmod u+x /tmp/config/install-plugins.sh
 /tmp/config/install-plugins.sh
+
+jenkins_version=$(rpm -qa | grep jenkins | cut -d '-' -f2)
+echo "$jenkins_version" > /var/lib/jenkins/jenkins.install.InstallUtil.lastExecVersion
+echo "$jenkins_version" > /var/lib/jenkins/jenkins.install.UpgradeWizard.state
 
 systemctl enable --now jenkins

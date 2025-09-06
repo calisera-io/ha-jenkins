@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
-plugin_dir=/var/lib/jenkins/plugins
-file_owner=jenkins.jenkins
+plugin_dir=$JENKINS_HOME/plugins
+file_owner=jenkins:jenkins
 
-mkdir -p /var/lib/jenkins/plugins
+mkdir -p ${plugin_dir}
 
 installPlugin() {
   if [ -f ${plugin_dir}/${1}.hpi -o -f ${plugin_dir}/${1}.jpi ]; then
@@ -48,8 +48,8 @@ while [ "$changed"  == "1" ]; do
   done
 done
 
-echo "fixing permissions"
+echo "setting correct permissions"
 
-chown ${file_owner} ${plugin_dir} -R
+chown -R ${file_owner} ${plugin_dir}
 
 echo "all done"
