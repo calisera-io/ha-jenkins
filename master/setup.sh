@@ -18,9 +18,17 @@ export JENKINS_HOME=/var/lib/jenkins
 mkdir $JENKINS_HOME/.ssh
 touch $JENKINS_HOME/.ssh/known_hosts
 chmod 700 $JENKINS_HOME/.ssh
-mv /tmp/id_rsa $JENKINS_HOME/.ssh/id_rsa
+mv /tmp/credentials/id_rsa $JENKINS_HOME/.ssh/id_rsa
 chmod 600 $JENKINS_HOME/.ssh/id_rsa
 chown -R jenkins:jenkins $JENKINS_HOME/.ssh
+rm -rf /tmp/credentials
+
+#
+# install plugins
+#
+chmod u+x /tmp/plugins/install-plugins.sh
+/tmp/plugins/install-plugins.sh
+rm -rf /tmp/plugins
 
 #
 # install groovy scripts
@@ -29,13 +37,6 @@ mkdir $JENKINS_HOME/init.groovy.d
 mv /tmp/scripts/*.groovy $JENKINS_HOME/init.groovy.d/
 chown -R jenkins:jenkins $JENKINS_HOME/init.groovy.d
 rmdir /tmp/scripts
-
-#
-# install plugins
-#
-chmod u+x /tmp/plugins/install-plugins.sh
-/tmp/plugins/install-plugins.sh
-rm -rf /tmp/plugins
 
 #
 # disable setup-wizard

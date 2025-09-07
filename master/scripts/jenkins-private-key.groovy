@@ -25,6 +25,12 @@ def store = Jenkins.instance.getExtensionList(
     'com.cloudbees.plugins.credentials.SystemCredentialsProvider'
 )[0].getStore()
 
+def existing = store.getCredentials(domain).find { it.id == credentialId }
+if (existing) {
+    println "Credential '${credentialId}' already exists. Skipping creation."
+    return
+}
+
 def keySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(privateKey)
 def sshKeyCredential = new BasicSSHUserPrivateKey(
     CredentialsScope.GLOBAL,

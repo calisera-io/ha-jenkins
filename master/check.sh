@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
 check_first_line() {
@@ -106,11 +107,6 @@ else
   ((errors++))
 fi
 
-# Check Groovy init scripts
-if [ ! -d "$JENKINS_HOME/init.groovy.d" ]; then
-  echo "ERROR: Groovy init scripts directory not found at $JENKINS_HOME/init.groovy.d"
-  ((errors++))
-fi 
 
 # Check plugins
 if [ ! -d "$JENKINS_HOME/plugins" ]; then
@@ -118,10 +114,16 @@ if [ ! -d "$JENKINS_HOME/plugins" ]; then
   ((errors++))
 fi
 
+# Check Groovy init scripts
+if [ ! -d "$JENKINS_HOME/init.groovy.d" ]; then
+  echo "ERROR: Groovy init scripts directory not found at $JENKINS_HOME/init.groovy.d"
+  ((errors++))
+fi 
+
 if [ $errors -gt 0 ]; then
-  echo -e "\nFound $errors error(s)"
+  echo "Found $errors error(s)"
   exit 1
 else
-  echo -e "\nAll checks passed"
+  echo "All checks passed"
   exit 0
 fi

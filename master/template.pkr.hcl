@@ -7,8 +7,23 @@ packer {
   }
 }
 
-locals {
-  jenkins_private_key_file = "/tmp/id_rsa"
+variable "shared_credentials_file" {
+  type    = string
+  default = ""
+}
+
+variable "profile" {
+  type    = string
+  default = "default"
+}
+variable "region" {
+  type    = string
+  default = "us-west-2"
+}
+
+variable "instance_type" {
+  type    = string
+  default = "t3.micro"
 }
 
 variable "jenkins_admin" {
@@ -21,22 +36,14 @@ variable "jenkins_admin_password" {
   default = "password"
 }
 
-variable "region" {
-  type    = string
-  default = "us-west-2"
-}
-
-variable "instance_type" {
-  type    = string
-  default = "t3.micro"
-}
-
 source "amazon-ebs" "jenkins" {
-  region          = var.region
-  instance_type   = var.instance_type
-  ssh_username    = "ec2-user"
-  ami_name        = "jenkins-master"
-  ami_description = "Amazon Linux Image with Jenkins Server"
+  region                  = var.region
+  instance_type           = var.instance_type
+  ssh_username            = "ec2-user"
+  ami_name                = "jenkins-master"
+  ami_description         = "Amazon Linux Image with Jenkins Server"
+  shared_credentials_file = var.shared_credentials_file
+  profile                 = var.profile
 
   source_ami_filter {
     filters = {
@@ -53,7 +60,7 @@ build {
   sources = ["source.amazon-ebs.jenkins"]
 
   provisioner "file" {
-    source      = "${path.root}/scripts"
+    source      = "${path.root}/credentials"
     destination = "/tmp/"
   }
 
@@ -62,13 +69,9 @@ build {
     destination = "/tmp/"
   }
 
-  provisioner "shell" {
-    inline = [
-      "cat > ${local.jenkins_private_key_file} << 'EOF'",
-      "${file("${path.root}/credentials/id_rsa")}",
-      "EOF",
-      "chmod 600 ${local.jenkins_private_key_file}"
-    ]
+  provisioner "file" {
+    source      = "${path.root}/scripts"
+    destination = "/tmp/"
   }
 
   provisioner "shell" {
