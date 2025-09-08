@@ -1,9 +1,45 @@
+variable "shared_config_file" {
+  type        = string
+  description = "AWS config file path"
+}
+
+variable "shared_credentials_file" {
+  type        = string
+  description = "AWS credentials file path"
+}
+
 variable "profile" {
-  type    = string
-  default = "default"
+  type        = string
+  description = "AWS profile"
+  default     = "default"
 }
 
 variable "region" {
-  type    = string
-  default = "us-west-2"
+  type        = string
+  description = "AWS region"
+  default     = "us-west-2"
+}
+
+variable "author" {
+  type        = string
+  description = "Created by"
+  default     = "Marcus Hogh"
+}
+
+variable "vpc_name" {
+  type        = string
+  description = "VPC name"
+  default     = "jenkins"
+}
+
+variable "cidr_block" {
+  type        = string
+  description = "VPC CIDR block"
+  default     = "10.0.0.0/16"
+}
+
+variable "availability_zones" {
+  type        = list(string)
+  description = "List of Availability Zones"
+  default     = ["us-west-2a", "us-west-2b"]
 }
