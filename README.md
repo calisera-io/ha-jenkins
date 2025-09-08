@@ -1,5 +1,7 @@
 # HA Jenkins Setup
 
+## AWS Technologies and Services
+
 * VPC
 * Multi AZ
 * Subnets
@@ -32,5 +34,6 @@
     * Configure Jenkins server on start and reboot (`init.groovy.d` Groovy scripts)
     * Install Jenkins plugins (`bash`)
     * Setup Jenkins credentials (`bash`) 
+    * Disable Jenkins setup wizard (`bash`)
 * Worker image
     * Install [Docker on Amazon Linux](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-docker.html)
