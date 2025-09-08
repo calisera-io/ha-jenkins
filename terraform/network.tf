@@ -64,6 +64,7 @@ resource "aws_route_table" "public_route_table" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
+  depends_on = [aws_internet_gateway.igw]
   tags = {
     Name   = "public-route-table-${var.vpc_name}"
     Author = var.author
@@ -100,6 +101,7 @@ resource "aws_route_table" "private_route_table" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_nat_gateway.nat_gateway.id
   }
+  depends_on = [aws_nat_gateway.nat_gateway]
   tags = {
     Name   = "private-route-table-${var.vpc_name}"
     Author = var.author
