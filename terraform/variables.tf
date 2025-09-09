@@ -72,3 +72,8 @@ variable "worker_instance_type" {
   description = "Worker instance type"
   default     = "t3.micro"
 }
+
+variable "ssl_certificate_arn" {
+  type        = string
+  description = "ARN of SSL certificate for HTTPS listener"
+}
