@@ -77,14 +77,14 @@ resource "aws_security_group" "lb" {
     to_port     = "80"
     protocol    = "tcp"
     cidr_blocks = ["${local.effective_ip}/32"]
-#    cidr_blocks = ["0.0.0.0/0"]
+    #    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = "443"
     to_port     = "443"
     protocol    = "tcp"
     cidr_blocks = ["${local.effective_ip}/32"]
-#    cidr_blocks = ["0.0.0.0/0"]
+    #    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port   = "0"
@@ -198,13 +198,16 @@ resource "aws_launch_template" "jenkins" {
 }
 
 resource "aws_autoscaling_group" "jenkins" {
-  name                = "jenkins-autoscaling-group"
-  desired_capacity    = 1
-  min_size            = 1
-  max_size            = 1
-  vpc_zone_identifier = values(aws_subnet.private_subnet)[*].id
-  target_group_arns   = [aws_lb_target_group.jenkins.arn]
-  health_check_type   = "ELB"
+  name                      = "jenkins-autoscaling-group"
+  desired_capacity          = 1
+  min_size                  = 1
+  max_size                  = 1
+  vpc_zone_identifier       = values(aws_subnet.private_subnet)[*].id
+  target_group_arns         = [aws_lb_target_group.jenkins.arn]
+  health_check_type         = "ELB"
+  health_check_grace_period = 300
+  wait_for_capacity_timeout = "15m"
+  wait_for_elb_capacity     = 1
   launch_template {
     id      = aws_launch_template.jenkins.id
     version = "$Latest"

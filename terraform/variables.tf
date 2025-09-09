@@ -76,6 +76,7 @@ variable "worker_instance_type" {
 variable "ssl_certificate_arn" {
   type        = string
   description = "ARN of SSL certificate for HTTPS listener"
+  default     = ""
 }
 
 variable "worker_credentials_id" {

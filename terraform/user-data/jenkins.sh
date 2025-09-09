@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-source /etc/environment
+JENKINS_USERNAME=admin
+JENKINS_PASSWORD=topsecret123
 
 curl -o /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
 rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key

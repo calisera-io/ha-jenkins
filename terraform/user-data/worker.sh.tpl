@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-source /etc/environment
+JENKINS_USERNAME=admin
+JENKINS_PASSWORD=topsecret123
 
 JENKINS_URL="http://${jenkins_private_ip}:8080"
 COOKIEJAR="$(mktemp)"
