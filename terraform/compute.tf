@@ -188,6 +188,10 @@ resource "aws_launch_template" "jenkins" {
   key_name               = var.public_key_name
   user_data              = filebase64("./user-data/jenkins.sh")
   vpc_security_group_ids = [aws_security_group.jenkins.id]
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "optional"
+  }
   tag_specifications {
     resource_type = "instance"
     tags = {
@@ -205,9 +209,7 @@ resource "aws_autoscaling_group" "jenkins" {
   vpc_zone_identifier       = values(aws_subnet.private_subnet)[*].id
   target_group_arns         = [aws_lb_target_group.jenkins.arn]
   health_check_type         = "ELB"
-  health_check_grace_period = 300
-  wait_for_capacity_timeout = "15m"
-  wait_for_elb_capacity     = 1
+  health_check_grace_period = 1200
   launch_template {
     id      = aws_launch_template.jenkins.id
     version = "$Latest"
@@ -253,6 +255,10 @@ resource "aws_launch_template" "worker" {
   network_interfaces {
     associate_public_ip_address = false
     security_groups             = [aws_security_group.worker.id]
+  }
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "optional"
   }
   tag_specifications {
     resource_type = "instance"

@@ -1,9 +1,23 @@
 #!/usr/bin/env bash
 
 JENKINS_USERNAME=admin
-JENKINS_PASSWORD=topsecret123
+JENKINS_PASSWORD=password
 
 JENKINS_URL="http://${jenkins_private_ip}:8080"
+
+echo "Waiting for $JENKINS_URL to return HTTP 200..."
+
+while true; do
+  STATUS=$(curl -o /dev/null -s -w "%%{http_code}" "$JENKINS_URL/login")
+  if [ "$STATUS" -eq 200 ]; then
+    echo "Success: $JENKINS_URL/login is up (HTTP 200)"
+    break
+  else
+    echo "Current status: $STATUS. Retrying in 5 seconds..."
+    sleep 5
+  fi
+done
+
 COOKIEJAR="$(mktemp)"
 TOKEN=$(curl -u $JENKINS_USERNAME:$JENKINS_PASSWORD --cookie-jar "$COOKIEJAR" ''$JENKINS_URL'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)')
 INSTANCE_NAME=$(curl -s 169.254.169.254/latest/meta-data/local-hostname)
