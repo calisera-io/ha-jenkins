@@ -76,13 +76,15 @@ resource "aws_security_group" "lb" {
     from_port   = "80"
     to_port     = "80"
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${local.effective_ip}/32"]
+#    cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
     from_port   = "443"
     to_port     = "443"
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${local.effective_ip}/32"]
+#    cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
     from_port   = "0"
@@ -184,7 +186,7 @@ resource "aws_launch_template" "jenkins" {
   image_id               = data.aws_ami.jenkins.id
   instance_type          = var.jenkins_instance_type
   key_name               = var.public_key_name
-  user_data              = filebase64("./jenkins-user-data.sh")
+  user_data              = filebase64("./user-data/jenkins.sh")
   vpc_security_group_ids = [aws_security_group.jenkins.id]
   tag_specifications {
     resource_type = "instance"
@@ -231,11 +233,20 @@ resource "aws_security_group" "worker" {
   }
 }
 
+data "template_file" "user_data_worker" {
+  template = file("user-data/worker.sh.tpl")
+  vars = {
+    jenkins_private_ip    = length(data.aws_instances.jenkins.private_ips) > 0 ? data.aws_instances.jenkins.private_ips[0] : "pending"
+    worker_credentials_id = var.worker_credentials_id
+  }
+}
+
 resource "aws_launch_template" "worker" {
   name          = "worker-launch-template"
   image_id      = data.aws_ami.worker.id
   instance_type = var.worker_instance_type
   key_name      = var.public_key_name
+  user_data     = base64encode(data.template_file.user_data_worker.rendered)
   network_interfaces {
     associate_public_ip_address = false
     security_groups             = [aws_security_group.worker.id]

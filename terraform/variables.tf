@@ -79,6 +79,7 @@ variable "ssl_certificate_arn" {
 }
 
 variable "worker_credentials_id" {
-  type = string
+  type        = string
   description = "Workers credentials id"
+  default     = "jenkins-worker"
 }
