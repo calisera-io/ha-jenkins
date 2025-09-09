@@ -9,7 +9,7 @@ resource "aws_cloudwatch_metric_alarm" "high-cpu-workers-alarm" {
   threshold           = "80"
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.worker_autoscaling_group.name
+    AutoScalingGroupName = aws_autoscaling_group.worker.name
   }
 
   alarm_description = "This metric monitors workers cpu utilization"
@@ -21,7 +21,7 @@ resource "aws_autoscaling_policy" "scale-out" {
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 300
-  autoscaling_group_name = aws_autoscaling_group.worker_autoscaling_group.name
+  autoscaling_group_name = aws_autoscaling_group.worker.name
 }
 
 resource "aws_cloudwatch_metric_alarm" "low-cpu-workers-alarm" {
@@ -35,7 +35,7 @@ resource "aws_cloudwatch_metric_alarm" "low-cpu-workers-alarm" {
   threshold           = "20"
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.worker_autoscaling_group.name
+    AutoScalingGroupName = aws_autoscaling_group.worker.name
   }
 
   alarm_description = "This metric monitors workers cpu utilization"
@@ -47,5 +47,5 @@ resource "aws_autoscaling_policy" "scale-in" {
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 300
-  autoscaling_group_name = aws_autoscaling_group.worker_autoscaling_group.name
+  autoscaling_group_name = aws_autoscaling_group.worker.name
 }

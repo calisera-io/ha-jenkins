@@ -8,7 +8,7 @@ data "aws_ami" "bastion" {
   }
 }
 
-data "aws_ami" "server" {
+data "aws_ami" "jenkins" {
   most_recent = true
   owners      = ["amazon"]
 
@@ -36,9 +36,9 @@ locals {
   effective_ip = var.my_ip != "" ? var.my_ip : trimspace(data.http.my_ip.response_body)
 }
 
-resource "aws_security_group" "bastion_security_group" {
+resource "aws_security_group" "bastion" {
   name        = "bastion-security-group-${var.vpc_name}"
-  description = "Allow SSH from my IP"
+  description = "Allow tcp/22 from my IP"
   vpc_id      = aws_vpc.custom.id
   egress {
     from_port   = 0
@@ -62,7 +62,7 @@ resource "aws_instance" "bastion" {
   ami                         = data.aws_ami.bastion.id
   instance_type               = var.bastion_instance_type
   key_name                    = var.public_key_name
-  vpc_security_group_ids      = [aws_security_group.bastion_security_group.id]
+  vpc_security_group_ids      = [aws_security_group.bastion.id]
   subnet_id                   = values(aws_subnet.public_subnet)[0].id
   associate_public_ip_address = true
   tags = {
@@ -71,15 +71,67 @@ resource "aws_instance" "bastion" {
   }
 }
 
-resource "aws_security_group" "worker_security_group" {
+resource "aws_security_group" "jenkins" {
+  name        = "jenkins-security-group-${var.vpc_name}"
+  description = "Allow tcp/8080 and tcp/22"
+  vpc_id      = aws_vpc.custom.id
+
+  ingress {
+    from_port       = "22"
+    to_port         = "22"
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion.id]
+  }
+
+  ingress {
+    from_port       = "8080"
+    to_port         = "8080"
+    protocol        = "tcp"
+    security_groups = [aws_security_group.lb.id]
+    cidr_blocks     = [var.cidr_block]
+  }
+
+  egress {
+    from_port   = "0"
+    to_port     = "0"
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name   = "jenkins-security-group-${var.vpc_name}"
+    Author = var.author
+  }
+}
+
+resource "aws_instance" "jenkins" {
+  ami                    = data.aws_ami.jenkins.id
+  instance_type          = var.jenkins_instance_type
+  key_name               = var.public_key_name
+  vpc_security_group_ids = [aws_security_group.jenkins.id]
+  subnet_id              = values(aws_subnet.private_subnet)[0].id
+  user_data_base64       = filebase64("./jenkins-user-data.sh")
+  tags = {
+    Name   = "jenkins_master"
+    Author = var.author
+  }
+}
+
+resource "aws_lb_target_group_attachment" "jenkins" {
+  target_group_arn = aws_lb_target_group.jenkins.arn
+  target_id        = aws_instance.jenkins.id
+  port             = 8080
+}
+
+resource "aws_security_group" "worker" {
   name        = "worker-security-group-${var.vpc_name}"
-  description = "Allow traffic on port 22 from bastion security group"
+  description = "Allow tcp/22 from bastion and jenkins security groups"
   vpc_id      = aws_vpc.custom.id
   ingress {
     from_port       = "22"
     to_port         = "22"
     protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_security_group.id]
+    security_groups = [aws_security_group.bastion.id, aws_security_group.jenkins.id]
   }
   egress {
     from_port   = "0"
@@ -93,14 +145,14 @@ resource "aws_security_group" "worker_security_group" {
   }
 }
 
-resource "aws_launch_template" "worker_launch_template" {
+resource "aws_launch_template" "worker" {
   name          = "worker-launch-template"
   image_id      = data.aws_ami.worker.id
   instance_type = var.worker_instance_type
   key_name      = var.public_key_name
   network_interfaces {
     associate_public_ip_address = false
-    security_groups             = [aws_security_group.worker_security_group.id]
+    security_groups             = [aws_security_group.worker.id]
   }
   tag_specifications {
     resource_type = "instance"
@@ -110,7 +162,7 @@ resource "aws_launch_template" "worker_launch_template" {
   }
 }
 
-resource "aws_autoscaling_group" "worker_autoscaling_group" {
+resource "aws_autoscaling_group" "worker" {
   name                = "worker-autoscaling-group"
   desired_capacity    = 1
   min_size            = 1
@@ -118,7 +170,7 @@ resource "aws_autoscaling_group" "worker_autoscaling_group" {
   vpc_zone_identifier = values(aws_subnet.private_subnet)[*].id
 
   launch_template {
-    id      = aws_launch_template.worker_launch_template.id
+    id      = aws_launch_template.worker.id
     version = "$Latest"
   }
 

@@ -61,6 +61,12 @@ variable "bastion_instance_type" {
   default     = "t3.micro"
 }
 
+variable "jenkins_instance_type" {
+  type        = string
+  description = "Jenlins instance type"
+  default     = "t3.micro"
+}
+
 variable "worker_instance_type" {
   type        = string
   description = "Worker instance type"
