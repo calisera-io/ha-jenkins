@@ -7,18 +7,10 @@ import com.cloudbees.plugins.credentials.CredentialsScope
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import jenkins.model.*
 
-def credentialId   = "jenkins"
-def description    = "Jenkins private key"
-def username       = "jenkins"
-def privateKeyFile = new File("/var/lib/jenkins/.ssh/id_rsa")
-
-if (!privateKeyFile.exists()) {
-    println "Private key file not found: ${privateKeyFile}"
-    return
-}
-
-def privateKey = privateKeyFile.text.trim()
-def passphrase = "" 
+def credentialId   = "jenkins-worker"
+def username       = "ec2-user"
+def passphrase     = "" 
+def description    = "Worker private key"
 
 def domain = Domain.global()
 def store = Jenkins.instance.getExtensionList(
@@ -31,7 +23,7 @@ if (existing) {
     return
 }
 
-def keySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(privateKey)
+def keySource = new BasicSSHUserPrivateKey.UsersPrivateKeySource()
 def sshKeyCredential = new BasicSSHUserPrivateKey(
     CredentialsScope.GLOBAL,
     credentialId,

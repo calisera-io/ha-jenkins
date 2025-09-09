@@ -38,8 +38,9 @@ source "amazon-ebs" "jenkins" {
   region                  = var.region
   instance_type           = var.instance_type
   ssh_username            = "ec2-user"
-  ami_name                = "jenkins-server"
-  ami_description         = "Amazon Linux Image with Jenkins Server"
+  ami_name                = "jenkins-worker"
+  ami_description         = "Amazon Linux Image with Worker for Jenkins"
+
   source_ami_filter {
     filters = {
       virtualization-type = "hvm"
@@ -53,21 +54,6 @@ source "amazon-ebs" "jenkins" {
 
 build {
   sources = ["source.amazon-ebs.jenkins"]
-  
-  provisioner "file" {
-    source      = "${path.root}/credentials"
-    destination = "/tmp/"
-  }
-
-  provisioner "file" {
-    source      = "${path.root}/plugins"
-    destination = "/tmp/"
-  }
-
-  provisioner "file" {
-    source      = "${path.root}/scripts"
-    destination = "/tmp/"
-  }
 
   provisioner "shell" {
     inline = [
@@ -85,5 +71,4 @@ build {
     script          = "${path.root}/check.sh"
     execute_command = "sudo -E -S sh '{{ .Path }}'"
   }
-
 }

@@ -4,13 +4,13 @@ import jenkins.model.*
 import hudson.security.*
 
 def env = System.getenv()
-def adminUsername = env['JENKINS_ADMIN_ID'] ?: 'admin'
-def adminPassword = env['JENKINS_ADMIN_PASSWORD'] ?: 'password'
+def username = env['JENKINS_USERNAME'] ?: 'username'
+def password = env['JENKINS_PASSWORD'] ?: 'password'
 
 def instance = Jenkins.getInstance()
 
 def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-hudsonRealm.createAccount(adminUsername, adminPassword)
+hudsonRealm.createAccount(username, password)
 instance.setSecurityRealm(hudsonRealm)
 
 def strategy = new FullControlOnceLoggedInAuthorizationStrategy()

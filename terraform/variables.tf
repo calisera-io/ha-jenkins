@@ -77,3 +77,8 @@ variable "ssl_certificate_arn" {
   type        = string
   description = "ARN of SSL certificate for HTTPS listener"
 }
+
+variable "worker_credentials_id" {
+  type = string
+  description = "Workers credentials id"
+}

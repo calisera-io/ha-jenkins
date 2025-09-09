@@ -58,10 +58,10 @@ check_file_perms() {
 
 check_environment() {
   local file="$1"
-  if ! grep -q "JENKINS_ADMIN_ID" "$file"; then
+  if ! grep -q "JENKINS_USERNAME" "$file"; then
     return 1
   fi
-  if ! grep -q "JENKINS_ADMIN_PASSWORD" "$file"; then
+  if ! grep -q "JENKINS_PASSWORD" "$file"; then
     return 1
   fi
   return 0

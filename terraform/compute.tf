@@ -246,6 +246,7 @@ resource "aws_launch_template" "worker" {
       Name = "worker-${var.vpc_name}"
     }
   }
+  depends_on = [aws_autoscaling_group.jenkins]
 }
 
 resource "aws_autoscaling_group" "worker" {
@@ -259,5 +260,6 @@ resource "aws_autoscaling_group" "worker" {
     version = "$Latest"
   }
   health_check_type = "EC2"
+  depends_on        = [aws_autoscaling_group.jenkins]
 }
 
