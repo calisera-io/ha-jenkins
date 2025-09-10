@@ -21,6 +21,36 @@
 * IAM 
 * Lambda
 
+## Setup credentials
+
+### Hashicorp vault
+
+Start vault server in development mode
+```bash
+vault server -dev
+export VAULT_ADDR='http://127.0.0.1:8200'
+export VAULT_TOKEN=$(vault print token)
+```
+
+Run
+```bash
+./read-jenkins-admin-credentials.sh
+```
+to set `jenkins_admin_id` and `jenkins_admin_password`.
+
+Verify for debugging
+```bash
+vault kv get -field=jenkins_admin_id secret/jenkins
+vault kv get -field=jenkins_admin_password secret/jenkins
+```
+
+### OpenSSH
+
+```bash
+mkdir credentials
+ssh-keygen -f credentials/jenkins_id_rsa -N '' -t rsa -b 4096
+```
+
 ## Deploy Infrastructure with Terraform
 
 [Terraform](https://developer.hashicorp.com/terraform)

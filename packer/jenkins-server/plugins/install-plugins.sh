@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-plugin_dir=$JENKINS_HOME/plugins
-file_owner=jenkins:jenkins
+plugin_dir="/var/lib/$JENKINS_USER/plugins"
+file_owner="${JENKINS_USER}:$JENKINS_USER"
 
 mkdir -p ${plugin_dir}
 
@@ -24,7 +24,7 @@ installPlugin() {
 while read -r plugin
 do
     installPlugin "$plugin"
-done < "/tmp/plugins/plugins"
+done < "/tmp/plugins/plugins.txt"
 
 changed=1
 maxloops=100

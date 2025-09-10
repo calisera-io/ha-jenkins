@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+dnf update -y
+dnf install -y \
+    git \
+    java-21-amazon-corretto \
+    docker
+dnf clean all
+rm -rf /var/cache/dnf/*
+rm -rf /tmp/*
+usermod -aG docker ec2-user
+systemctl enable --now docker
+
 JENKINS_USERNAME=admin
 JENKINS_PASSWORD=password
 
@@ -23,6 +34,11 @@ TOKEN=$(curl -u $JENKINS_USERNAME:$JENKINS_PASSWORD --cookie-jar "$COOKIEJAR" ''
 INSTANCE_NAME=$(curl -s 169.254.169.254/latest/meta-data/local-hostname)
 INSTANCE_IP=$(curl -s 169.254.169.254/latest/meta-data/local-ipv4)
 JENKINS_CREDENTIALS_ID="${worker_credentials_id}"
+
+echo "TOKEN $TOKEN"
+echo "INSTANCE_NAME $INSTANCE_NAME"
+echo "INSTANCE_IP $INSTANCE_IP"
+echo "JENKINS_CREDENTIALS_ID $JENKINS_CREDENTIALS_ID"
 
 curl -v -u $JENKINS_USERNAME:$JENKINS_PASSWORD --cookie "$COOKIEJAR" -H "$TOKEN" -d 'script=
 import hudson.model.Node.Mode

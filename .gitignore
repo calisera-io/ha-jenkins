@@ -33,5 +33,5 @@ output-*/
 terraform.rc
 
 ### Key material
-id_rsa*
+*id_rsa*
 *.pem

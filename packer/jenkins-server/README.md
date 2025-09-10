@@ -1,12 +1,5 @@
 ## Create Jenkins Master AMI with Packer
 
-### Setup credentials
-
-```bash
-cd packer/jenkins-server
-ssh-keygen -f credentials/id_rsa -N '' -t rsa -b 4096
-```
-
 ### Template variables
 
 The following variables are declared in the packer template `packer/jenkins-server/template.pkr.hcl` 

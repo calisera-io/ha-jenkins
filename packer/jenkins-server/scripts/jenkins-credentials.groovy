@@ -9,7 +9,7 @@ import jenkins.model.*
 
 def credentialId   = "jenkins"
 def username       = "jenkins"
-def privateKeyFile = new File("/var/lib/jenkins/.ssh/id_rsa")
+def privateKeyFile = new File("/var/lib/jenkins/.ssh/jenkins_id_rsa")
 
 if (!privateKeyFile.exists()) {
     println "Private key file not found: ${privateKeyFile}"
