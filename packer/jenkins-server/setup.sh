@@ -17,6 +17,7 @@ systemctl daemon-reload
 systemctl enable jenkins
 
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
+export JENKINS_USER
 
 #
 # install private key
@@ -33,7 +34,7 @@ rm -rf /tmp/credentials
 # install plugins
 #
 chmod u+x /tmp/plugins/install-plugins.sh
-JENKINS_USER=$JENKINS_USER bash /tmp/plugins/install-plugins.sh
+/tmp/plugins/install-plugins.sh
 rm -rf /tmp/plugins
 
 #

@@ -38,11 +38,13 @@ Run
 ```
 to set `jenkins_admin_id` and `jenkins_admin_password`.
 
-Verify for debugging
+Use
 ```bash
 vault kv get -field=jenkins_admin_id secret/jenkins
 vault kv get -field=jenkins_admin_password secret/jenkins
 ```
+to verify credentials for debugging
+
 
 ### OpenSSH
 
