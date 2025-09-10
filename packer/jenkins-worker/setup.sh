@@ -29,7 +29,11 @@ chmod 640 "/etc/sudoers.d/$JENKINS_USER"
 #
 mkdir -p "$WORKDIR/.ssh"
 chmod 700 "$WORKDIR/.ssh"
-chown -R "$JENKINS_USER":"$JENKINS_USER" "$WORKDIR"
 cat /tmp/credentials/jenkins_id_rsa.pub > $WORKDIR/.ssh/authorized_keys
 chmod 600 "$WORKDIR/.ssh/authorized_keys"
 rm -rf /tmp/credentials
+
+#
+# set ownership of jenkins home
+#
+chown -R "$JENKINS_USER":"$JENKINS_USER" "$WORKDIR"

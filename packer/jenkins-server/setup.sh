@@ -27,7 +27,7 @@ touch $JENKINS_HOME/.ssh/known_hosts
 chmod 700 $JENKINS_HOME/.ssh
 mv /tmp/credentials/jenkins_id_rsa $JENKINS_HOME/.ssh/jenkins_id_rsa
 chmod 600 $JENKINS_HOME/.ssh/jenkins_id_rsa
-chown -R jenkins:jenkins $JENKINS_HOME/.ssh
+chown -R "$JENKINS_USER":"$JENKINS_USER" $JENKINS_HOME/.ssh
 rm -rf /tmp/credentials
 
 #
@@ -42,7 +42,7 @@ rm -rf /tmp/plugins
 #
 mkdir $JENKINS_HOME/init.groovy.d
 mv /tmp/scripts/*.groovy $JENKINS_HOME/init.groovy.d/
-chown -R jenkins:jenkins $JENKINS_HOME/init.groovy.d
+chown -R "$JENKINS_USER":"$JENKINS_USER" $JENKINS_HOME/init.groovy.d
 rmdir /tmp/scripts
 
 #

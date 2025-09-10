@@ -1,12 +1,36 @@
 #!/usr/bin/env bash
 
-curl -o /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+set -e
+
+curl -s -o /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
 rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
 dnf upgrade
-# Add required dependencies for the jenkins package
-dnf install java-21-amazon-corretto -y
-dnf install jenkins -y
+dnf install -y \
+    unzip \
+    git \
+    java-21-amazon-corretto \
+    jenkins
+dnf clean all
+rm -rf /var/cache/dnf/*
+
 systemctl daemon-reload
+systemctl enable jenkins
+
+JENKINS_USER=${jenkins_user}
+JENKINS_HOME="/var/lib/$JENKINS_USER" 
+
+echo JENKINS_ADMIN_ID=${jenkins_admin_id} >> /etc/environment
+echo JENKINS_ADMIN_PASSWORD=${jenkins_admin_password} >> /etc/environment
+
+export JENKINS_ADMIN_ID=${jenkins_admin_id}
+export JENKINS_ADMIN_PASSWORD=${jenkins_admin_password}
+
+mkdir $JENKINS_HOME/.ssh
+touch $JENKINS_HOME/.ssh/known_hosts
+chmod 700 $JENKINS_HOME/.ssh
+echo "${jenkins_private_key}" > $JENKINS_HOME/.ssh/jenkins_id_rsa
+chmod 600 $JENKINS_HOME/.ssh/jenkins_id_rsa
+chown -R jenkins:jenkins $JENKINS_HOME/.ssh
 
 mkdir -p /var/lib/jenkins/init.groovy.d
 cat <<EOF > /var/lib/jenkins/init.groovy.d/basic-security.groovy
@@ -17,8 +41,8 @@ import hudson.security.*
 
 // Get env vars or use defaults
 def env = System.getenv()
-def adminUsername = env['JENKINS_USERNAME'] ?: 'admin'
-def adminPassword = env['JENKINS_PASSWORD'] ?: 'password'
+def adminUsername = env['JENKINS_ADMIN_ID'] ?: 'admin'
+def adminPassword = env['JENKINS_ADMIN_PASSWORD'] ?: 'password'
 
 def instance = Jenkins.getInstance()
 def hudsonRealm = new HudsonPrivateSecurityRealm(false)
@@ -44,12 +68,12 @@ process.waitFor()
 def publicIpv4 = process.text
 def jenkinsLocationConfiguration = JenkinsLocationConfiguration.get()
 
-def newUrl = "http://\${publicIpv4}:8080/"
+def newUrl = "http://\$${publicIpv4}:8080/"
 jenkinsLocationConfiguration.setUrl(newUrl)
 
 jenkinsLocationConfiguration.save()
 EOF
-cat <<EOF > /var/lib/jenkins/init.groovy.d/worker-credentials.groovy
+cat <<EOF > /var/lib/jenkins/init.groovy.d/jenkins-credentials.groovy
 #!groovy
 
 import com.cloudbees.plugins.credentials.*
@@ -59,10 +83,18 @@ import com.cloudbees.plugins.credentials.CredentialsScope
 import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
 import jenkins.model.*
 
-def credentialId   = "jenkins-worker"
-def username       = "ec2-user"
+def credentialId   = "jenkins"
+def username       = "jenkins"
+def privateKeyFile = new File("/var/lib/jenkins/.ssh/jenkins_id_rsa")
+
+if (!privateKeyFile.exists()) {
+    println "Private key file not found: \$${privateKeyFile}"
+    return
+}
+
+def privateKey     = privateKeyFile.text.trim()
 def passphrase     = "" 
-def description    = "Worker private key"
+def description    = "Jenkins private key"
 
 def domain = Domain.global()
 def store = Jenkins.instance.getExtensionList(
@@ -71,11 +103,11 @@ def store = Jenkins.instance.getExtensionList(
 
 def existing = store.getCredentials(domain).find { it.id == credentialId }
 if (existing) {
-    println "Credential '${credentialId}' already exists. Skipping creation."
+    println "Credential '\$${credentialId}' already exists. Skipping creation."
     return
 }
 
-def keySource = new BasicSSHUserPrivateKey.UsersPrivateKeySource()
+def keySource = new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(privateKey)
 def sshKeyCredential = new BasicSSHUserPrivateKey(
     CredentialsScope.GLOBAL,
     credentialId,
@@ -86,7 +118,7 @@ def sshKeyCredential = new BasicSSHUserPrivateKey(
 )
 
 store.addCredentials(domain, sshKeyCredential)
-println "Credential '${credentialId}' added successfully."
+println "Credential '\$${credentialId}' added successfully."
 EOF
 chown -R jenkins:jenkins /var/lib/jenkins/init.groovy.d
 
@@ -191,49 +223,46 @@ file_owner=jenkins.jenkins
 mkdir -p /var/lib/jenkins/plugins
 
 installPlugin() {
-  if [ -f \${plugin_dir}/\${1}.hpi -o -f \${plugin_dir}/\${1}.jpi ]; then
-    if [ "\$2" == "1" ]; then
+  if [ -f \$${plugin_dir}/\$${1}.hpi -o -f \$${plugin_dir}/\$${1}.jpi ]; then
+    if [ "\$${2}" == "1" ]; then
       return 1
     fi
-    echo "Skipped: \$1 (already installed)"
+    echo "Skipped: \$${1} (already installed)"
     return 0
   else
-    echo "Installing: \$1"
-    curl -L --silent --output \${plugin_dir}/\${1}.hpi  https://updates.jenkins-ci.org/latest/\${1}.hpi
+    echo "Installing: \$${1}"
+    curl -L --silent --output \$${plugin_dir}/\$${1}.hpi  https://updates.jenkins-ci.org/latest/\$${1}.hpi
     return 0
   fi
 }
 
 while read -r plugin
 do
-    installPlugin "\$plugin"
+    installPlugin "\$${plugin}"
 done < "/tmp/config/plugins"
 
 changed=1
 maxloops=100
 
-while [ "\$changed"  == "1" ]; do
+while [ "\$${changed}"  == "1" ]; do
   echo "Check for missing dependecies ..."
-  if  [ \$maxloops -lt 1 ] ; then
-    echo "Max loop count reached - probably a bug in this script: \$0"
+  if  [ \$${maxloops} -lt 1 ] ; then
+    echo "Max loop count reached - probably a bug in this script: \$${0}"
     exit 1
   fi
   ((maxloops--))
   changed=0
-  for f in \${plugin_dir}/*.hpi ; do
-    # without optionals
-    #deps=$( unzip -p ${f} META-INF/MANIFEST.MF | tr -d '\r' | sed -e ':a;N;$!ba;s/\n //g' | grep -e "^Plugin-Dependencies: " | awk '{ print $2 }' | tr ',' '\n' | grep -v "resolution:=optional" | awk -F ':' '{ print $1 }' | tr '\n' ' ' )
-    # with optionals
-    deps=$( unzip -p ${f} META-INF/MANIFEST.MF | tr -d '\r' | sed -e ':a;N;$!ba;s/\n //g' | grep -e "^Plugin-Dependencies: " | awk '{ print $2 }' | tr ',' '\n' | awk -F ':' '{ print $1 }' | tr '\n' ' ' )
-    for plugin in \$deps; do
-      installPlugin "\$plugin" 1 && changed=1
+  for f in \$${plugin_dir}/*.hpi ; do
+    deps=\$( unzip -p \$${f} META-INF/MANIFEST.MF | tr -d '\r' | sed -e ':a;N;$!ba;s/\n //g' | grep -e "^Plugin-Dependencies: " | awk '{ print \$${2} }' | tr ',' '\n' | awk -F ':' '{ print \$${1} }' | tr '\n' ' ' )
+    for plugin in \$${deps}; do
+      installPlugin "\$${plugin}" 1 && changed=1
     done
   done
 done
 
 echo "fixing permissions"
 
-chown \${file_owner} \${plugin_dir} -R
+chown \$${file_owner} \$${plugin_dir} -R
 
 echo "all done"
 EOF

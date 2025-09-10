@@ -1,3 +1,16 @@
+data "vault_kv_secret_v2" "jenkins" {
+  mount = "secret"
+  name  = "jenkins"
+}
+
+data "local_file" "jenkins_private_key" {
+  filename = abspath("${path.module}/../credentials/${var.jenkins_private_key_file}")
+}
+
+data "local_file" "jenkins_public_key" {
+  filename = abspath("${path.module}/../credentials/${var.jenkins_public_key_file}")
+}
+
 data "aws_ami" "bastion" {
   most_recent = true
   owners      = ["amazon"]
@@ -81,6 +94,7 @@ resource "aws_security_group" "jenkins" {
     to_port         = "22"
     protocol        = "tcp"
     security_groups = [aws_security_group.bastion.id]
+    cidr_blocks     = ["${local.effective_ip}/32"]
   }
   ingress {
     from_port   = "8080"
@@ -100,14 +114,31 @@ resource "aws_security_group" "jenkins" {
   }
 }
 
+data "template_file" "user_data_jenkins" {
+  template = file("user-data/jenkins.sh.tpl")
+  vars = {
+    jenkins_credentials_id = var.jenkins_credentials_id
+    jenkins_admin_id       = data.vault_kv_secret_v2.jenkins.data["jenkins_admin_id"]
+    jenkins_admin_password = data.vault_kv_secret_v2.jenkins.data["jenkins_admin_password"]
+    jenkins_user           = var.jenkins_user
+    jenkins_private_key    = data.local_file.jenkins_private_key.content
+  }
+}
+
 resource "aws_instance" "jenkins" {
   ami                         = data.aws_ami.jenkins.id
   instance_type               = var.jenkins_instance_type
   key_name                    = var.public_key_name
-  user_data_base64            = filebase64("./user-data/jenkins.sh")
+  user_data_base64            = base64encode(data.template_file.user_data_jenkins.rendered)
   vpc_security_group_ids      = [aws_security_group.jenkins.id]
   subnet_id                   = values(aws_subnet.public_subnet)[0].id
   associate_public_ip_address = true
+  root_block_device {
+    volume_size           = 20
+    volume_type           = "gp3"
+    delete_on_termination = true
+    encrypted             = true
+  }
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "optional"
@@ -143,8 +174,12 @@ resource "aws_security_group" "worker" {
 data "template_file" "user_data_worker" {
   template = file("user-data/worker.sh.tpl")
   vars = {
-    jenkins_private_ip    = aws_instance.jenkins.private_ip
-    worker_credentials_id = var.worker_credentials_id
+    jenkins_private_ip     = aws_instance.jenkins.private_ip
+    jenkins_credentials_id = var.jenkins_credentials_id
+    jenkins_admin_id       = data.vault_kv_secret_v2.jenkins.data["jenkins_admin_id"]
+    jenkins_admin_password = data.vault_kv_secret_v2.jenkins.data["jenkins_admin_password"]
+    jenkins_user           = var.jenkins_user
+    jenkins_public_key     = data.local_file.jenkins_public_key.content
   }
 }
 
@@ -157,6 +192,15 @@ resource "aws_launch_template" "worker" {
   network_interfaces {
     associate_public_ip_address = false
     security_groups             = [aws_security_group.worker.id]
+  }
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size           = 20
+      volume_type           = "gp3"
+      delete_on_termination = true
+      encrypted             = true
+    }
   }
   metadata_options {
     http_endpoint = "enabled"

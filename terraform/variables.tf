@@ -79,14 +79,26 @@ variable "ssl_certificate_arn" {
   default     = ""
 }
 
+variable "jenkins_private_key_file" {
+  type        = string
+  description = ""
+  default     = "jenkins_id_rsa"
+}
+
 variable "jenkins_public_key_file" {
   type        = string
   description = ""
-  default     = abspath("${path.module}/../credentials/jenkins_id_rsa.pub")}")
+  default     = "jenkins_id_rsa.pub"
 }
 
-variable "worker_credentials_id" {
+variable "jenkins_credentials_id" {
   type        = string
-  description = "Workers credentials id"
-  default     = "jenkins-worker"
+  description = "Jenkins credentials id"
+  default     = "jenkins"
+}
+
+variable "jenkins_user" {
+  type        = string
+  description = "Jenkins user name"
+  default     = "jenkins"
 }
