@@ -29,15 +29,21 @@ import hudson.model.Node.Mode
 import hudson.slaves.*
 import jenkins.model.Jenkins
 import hudson.plugins.sshslaves.SSHLauncher
+import hudson.plugins.sshslaves.verifiers.NonVerifyingKeyVerificationStrategy
 
-DumbSlave dumb = new DumbSlave("'$INSTANCE_NAME'",
-"'$INSTANCE_NAME'",
-"/home/ec2-user",
-"3",
-Mode.NORMAL,
-"workers",
-new SSHLauncher("'$INSTANCE_IP'", 22, "'$JENKINS_CREDENTIALS_ID'"),
-RetentionStrategy.INSTANCE)
+SSHLauncher launcher = new SSHLauncher("'$INSTANCE_IP'", 22, "'$JENKINS_CREDENTIALS_ID'")
+launcher.setSshHostKeyVerificationStrategy(new NonVerifyingKeyVerificationStrategy())
+
+DumbSlave dumb = new DumbSlave(
+  "'$INSTANCE_NAME'",
+  "Worker node '$INSTANCE_NAME'",
+  "/home/ec2-user",
+  "2",
+  Mode.NORMAL,
+  "workers",
+  launcher,
+  RetentionStrategy.INSTANCE
+)
 Jenkins.instance.addNode(dumb)
 ' $JENKINS_URL/script
 
