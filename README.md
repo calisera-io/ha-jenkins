@@ -27,6 +27,7 @@
 
 Start vault server in development mode
 ```bash
+pkill vault
 vault server -dev
 export VAULT_ADDR='http://127.0.0.1:8200'
 export VAULT_TOKEN=$(vault print token)

@@ -34,6 +34,6 @@ chmod 600 "$WORKDIR/.ssh/authorized_keys"
 rm -rf /tmp/credentials
 
 #
-# set ownership of jenkins home
+# change ownership of jenkins user home directory
 #
 chown -R "$JENKINS_USER":"$JENKINS_USER" "$WORKDIR"
