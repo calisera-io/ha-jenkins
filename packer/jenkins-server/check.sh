@@ -16,7 +16,7 @@ check_first_line() {
     fi
 }
 
-check_last_line() {
+check_last_non_empty_line() {
     local file="$1"
     local string="$2"
 
@@ -35,7 +35,7 @@ check_private_key_format() {
     local first_line="-----BEGIN OPENSSH PRIVATE KEY-----"
     local last_line="-----END OPENSSH PRIVATE KEY-----"
 
-    if check_first_line "$file" "$first_line" && check_last_line "$file" "$last_line"; then
+    if check_first_line "$file" "$first_line" && check_last_non_empty_line "$file" "$last_line"; then
         return 0 
     else
         return 1  
@@ -71,19 +71,25 @@ JENKINS_HOME=${JENKINS_HOME:-/var/lib/jenkins}
 
 errors=0
 
+#
 # Check environment configuration
+#
 if ! check_environment "/etc/environment"; then
   echo "ERROR: Environment configuration missing"
   ((errors++))
 fi
 
+#
 # Check Jenkins home directory
+#
 if [ ! -d "$JENKINS_HOME" ]; then
   echo "ERROR: Jenkins home directory not found at $JENKINS_HOME"
   ((errors++))
 fi
 
+#
 # Check SSH configuration
+#
 if [ -d "$JENKINS_HOME/.ssh" ]; then
   if [ -f "$JENKINS_HOME/.ssh/jenkins_id_rsa" ]; then
     if ! check_file_perms "$JENKINS_HOME/.ssh" "700"; then
@@ -107,18 +113,34 @@ else
   ((errors++))
 fi
 
-
+#
 # Check plugins
+#
 if [ ! -d "$JENKINS_HOME/plugins" ]; then
   echo "ERROR: Plugins directory not found at $JENKINS_HOME/plugins"
   ((errors++))
 fi
 
+#
 # Check Groovy init scripts
+#
 if [ ! -d "$JENKINS_HOME/init.groovy.d" ]; then
   echo "ERROR: Groovy init scripts directory not found at $JENKINS_HOME/init.groovy.d"
   ((errors++))
 fi 
+
+#
+# Check setup-wizard state
+#
+jenkins_version=$(rpm -qa | grep jenkins | cut -d '-' -f2)
+if ! check_last_non_empty_line "$JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion" "$jenkins_version"; then
+  echo "ERROR: Unexpected file contents $JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion"
+  ((errors++))
+fi
+if ! check_last_non_empty_line "$JENKINS_HOME/jenkins.install.UpgradeWizard.state" "$jenkins_version"; then
+  echo "ERROR: Unexpected file contents $JENKINS_HOME/jenkins.install.UpgradeWizard.state"
+  ((errors++))
+fi
 
 if [ $errors -gt 0 ]; then
   echo "Found $errors error(s)"
