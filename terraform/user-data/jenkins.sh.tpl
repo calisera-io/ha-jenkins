@@ -22,8 +22,8 @@ JENKINS_HOME="/var/lib/$JENKINS_USER"
 echo JENKINS_ADMIN_ID=${jenkins_admin_id} >> /etc/environment
 echo JENKINS_ADMIN_PASSWORD=${jenkins_admin_password} >> /etc/environment
 
-export JENKINS_ADMIN_ID=${jenkins_admin_id}
-export JENKINS_ADMIN_PASSWORD=${jenkins_admin_password}
+JENKINS_ADMIN_ID=${jenkins_admin_id}
+JENKINS_ADMIN_PASSWORD=${jenkins_admin_password}
 
 mkdir $JENKINS_HOME/.ssh
 touch $JENKINS_HOME/.ssh/known_hosts
@@ -39,10 +39,9 @@ cat <<EOF > /var/lib/jenkins/init.groovy.d/basic-security.groovy
 import jenkins.model.*
 import hudson.security.*
 
-// Get env vars or use defaults
 def env = System.getenv()
-def adminUsername = env['JENKINS_ADMIN_ID'] ?: 'admin'
-def adminPassword = env['JENKINS_ADMIN_PASSWORD'] ?: 'password'
+def adminUsername = env['JENKINS_ADMIN_ID'] ?: $JENKINS_ADMIN_ID
+def adminPassword = env['JENKINS_ADMIN_PASSWORD'] ?: $JENKINS_ADMIN_PASSWORD
 
 def instance = Jenkins.getInstance()
 def hudsonRealm = new HudsonPrivateSecurityRealm(false)
@@ -253,7 +252,7 @@ while [ "\$${changed}"  == "1" ]; do
   ((maxloops--))
   changed=0
   for f in \$${plugin_dir}/*.hpi ; do
-    deps=\$( unzip -p \$${f} META-INF/MANIFEST.MF | tr -d '\r' | sed -e ':a;N;$!ba;s/\n //g' | grep -e "^Plugin-Dependencies: " | awk '{ print \$${2} }' | tr ',' '\n' | awk -F ':' '{ print \$${1} }' | tr '\n' ' ' )
+    deps=\$( unzip -p \$${f} META-INF/MANIFEST.MF | tr -d '\r' | sed -e ':a;N;\$!ba;s/\n //g' | grep -e "^Plugin-Dependencies: " | awk '{ print \$2 }' | tr ',' '\n' | awk -F ':' '{ print \$1 }' | tr '\n' ' ' )
     for plugin in \$${deps}; do
       installPlugin "\$${plugin}" 1 && changed=1
     done

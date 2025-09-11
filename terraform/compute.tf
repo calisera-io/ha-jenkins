@@ -134,7 +134,7 @@ resource "aws_instance" "jenkins" {
   subnet_id                   = values(aws_subnet.public_subnet)[0].id
   associate_public_ip_address = true
   root_block_device {
-    volume_size           = 20
+    volume_size           = 10
     volume_type           = "gp3"
     delete_on_termination = true
     encrypted             = true
@@ -196,7 +196,7 @@ resource "aws_launch_template" "worker" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_size           = 20
+      volume_size           = 10
       volume_type           = "gp3"
       delete_on_termination = true
       encrypted             = true
