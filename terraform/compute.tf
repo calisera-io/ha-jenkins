@@ -1,3 +1,8 @@
+data "vault_kv_secret_v2" "jenkins" {
+  mount = "secret"
+  name  = "jenkins"
+}
+
 data "aws_ami" "bastion" {
   most_recent = true
   owners      = ["amazon"]
@@ -62,6 +67,12 @@ resource "aws_instance" "bastion" {
   vpc_security_group_ids      = [aws_security_group.bastion.id]
   subnet_id                   = values(aws_subnet.public_subnet)[0].id
   associate_public_ip_address = true
+  root_block_device {
+    volume_type           = var.bastion_root_block_device.volume_type
+    volume_size           = var.bastion_root_block_device.volume_size
+    encrypted             = var.bastion_root_block_device.encrypted
+    delete_on_termination = var.bastion_root_block_device.delete_on_termination
+  }
   tags = {
     Name   = "bastion-${var.vpc_name}"
     Author = var.author
@@ -116,19 +127,22 @@ resource "aws_lb_target_group" "jenkins" {
   protocol = "HTTP"
   vpc_id   = aws_vpc.custom.id
   health_check {
-    enabled             = true
+    path                = "/login/index.html"
     healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 3
-    protocol            = "HTTP"
-    path                = "/"
+    unhealthy_threshold = 3
+    timeout             = 5
     interval            = 30
-    matcher             = "200"
   }
   tags = {
     Name   = "lb-target-group-${var.vpc_name}"
     Author = var.author
   }
+}
+
+resource "aws_lb_target_group_attachment" "jenkins" {
+  target_group_arn = aws_lb_target_group.jenkins.arn
+  target_id        = aws_instance.jenkins.id
+  port             = 8080
 }
 
 resource "aws_lb_listener" "jenkins_http" {
@@ -181,38 +195,29 @@ resource "aws_security_group" "jenkins" {
   }
 }
 
-resource "aws_launch_template" "jenkins" {
-  name                   = "jenkins-launch-template"
-  image_id               = data.aws_ami.jenkins.id
-  instance_type          = var.jenkins_instance_type
-  key_name               = var.public_key_name
-  user_data              = filebase64("./user-data/jenkins.sh")
-  vpc_security_group_ids = [aws_security_group.jenkins.id]
+resource "aws_instance" "jenkins" {
+  ami                         = data.aws_ami.jenkins.id
+  instance_type               = var.jenkins_instance_type
+  key_name                    = var.public_key_name
+  vpc_security_group_ids      = [aws_security_group.jenkins.id]
+  user_data_base64            = filebase64("./user-data/jenkins.sh")
+  subnet_id                   = values(aws_subnet.private_subnet)[0].id
+  associate_public_ip_address = false
+  root_block_device {
+    volume_type           = var.jenkins_root_block_device.volume_type
+    volume_size           = var.jenkins_root_block_device.volume_size
+    iops                  = var.jenkins_root_block_device.iops
+    throughput            = var.jenkins_root_block_device.throughput
+    encrypted             = var.jenkins_root_block_device.encrypted
+    delete_on_termination = var.jenkins_root_block_device.delete_on_termination
+  }
   metadata_options {
     http_endpoint = "enabled"
     http_tokens   = "optional"
   }
-  tag_specifications {
-    resource_type = "instance"
-    tags = {
-      Name   = "server-${var.vpc_name}"
-      Author = var.author
-    }
-  }
-}
-
-resource "aws_autoscaling_group" "jenkins" {
-  name                      = "jenkins-autoscaling-group"
-  desired_capacity          = 1
-  min_size                  = 1
-  max_size                  = 1
-  vpc_zone_identifier       = values(aws_subnet.private_subnet)[*].id
-  target_group_arns         = [aws_lb_target_group.jenkins.arn]
-  health_check_type         = "ELB"
-  health_check_grace_period = 1200
-  launch_template {
-    id      = aws_launch_template.jenkins.id
-    version = "$Latest"
+  tags = {
+    Name   = "server-${var.vpc_name}"
+    Author = var.author
   }
 }
 
@@ -241,8 +246,10 @@ resource "aws_security_group" "worker" {
 data "template_file" "user_data_worker" {
   template = file("user-data/worker.sh.tpl")
   vars = {
-    jenkins_private_ip    = length(data.aws_instances.jenkins.private_ips) > 0 ? data.aws_instances.jenkins.private_ips[0] : "pending"
-    worker_credentials_id = var.worker_credentials_id
+    jenkins_admin_id       = data.vault_kv_secret_v2.jenkins.data["jenkins_admin_id"]
+    jenkins_admin_password = data.vault_kv_secret_v2.jenkins.data["jenkins_admin_password"]
+    jenkins_private_ip     = aws_instance.jenkins.private_ip
+    jenkins_credentials_id = var.jenkins_credentials_id
   }
 }
 
@@ -251,10 +258,21 @@ resource "aws_launch_template" "worker" {
   image_id      = data.aws_ami.worker.id
   instance_type = var.worker_instance_type
   key_name      = var.public_key_name
-  user_data     = base64encode(data.template_file.user_data_worker.rendered)
+  #user_data     = base64encode(data.template_file.user_data_worker.rendered)
   network_interfaces {
     associate_public_ip_address = false
     security_groups             = [aws_security_group.worker.id]
+  }
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_type           = var.worker_root_block_device.volume_type
+      volume_size           = var.worker_root_block_device.volume_size
+      iops                  = var.worker_root_block_device.iops
+      throughput            = var.worker_root_block_device.throughput
+      encrypted             = var.worker_root_block_device.encrypted
+      delete_on_termination = var.worker_root_block_device.delete_on_termination
+    }
   }
   metadata_options {
     http_endpoint = "enabled"
@@ -266,20 +284,20 @@ resource "aws_launch_template" "worker" {
       Name = "worker-${var.vpc_name}"
     }
   }
-  depends_on = [aws_autoscaling_group.jenkins]
+  depends_on = [aws_instance.jenkins]
 }
 
 resource "aws_autoscaling_group" "worker" {
   name                = "worker-autoscaling-group"
-  desired_capacity    = 1
-  min_size            = 1
-  max_size            = 2
+  desired_capacity    = 0
+  min_size            = 0
+  max_size            = 0
   vpc_zone_identifier = values(aws_subnet.private_subnet)[*].id
   launch_template {
     id      = aws_launch_template.worker.id
     version = "$Latest"
   }
   health_check_type = "EC2"
-  depends_on        = [aws_autoscaling_group.jenkins]
+  depends_on        = [aws_instance.jenkins]
 }
 

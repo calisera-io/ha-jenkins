@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-JENKINS_USERNAME=admin
-JENKINS_PASSWORD=password
-
+JENKINS_USERNAME=${jenkins_admin_id}
+JENKINS_PASSWORD=${jenkins_admin_password}
 JENKINS_URL="http://${jenkins_private_ip}:8080"
 
 echo "Waiting for $JENKINS_URL to return HTTP 200..."
@@ -22,22 +21,33 @@ COOKIEJAR="$(mktemp)"
 TOKEN=$(curl -u $JENKINS_USERNAME:$JENKINS_PASSWORD --cookie-jar "$COOKIEJAR" ''$JENKINS_URL'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)')
 INSTANCE_NAME=$(curl -s 169.254.169.254/latest/meta-data/local-hostname)
 INSTANCE_IP=$(curl -s 169.254.169.254/latest/meta-data/local-ipv4)
-JENKINS_CREDENTIALS_ID="${worker_credentials_id}"
+JENKINS_CREDENTIALS_ID="${jenkins_credentials_id}"
+
+echo "TOKEN $TOKEN"
+echo "INSTANCE_NAME $INSTANCE_NAME"
+echo "INSTANCE_IP $INSTANCE_IP"
+echo "JENKINS_CREDENTIALS_ID $JENKINS_CREDENTIALS_ID"
 
 curl -v -u $JENKINS_USERNAME:$JENKINS_PASSWORD --cookie "$COOKIEJAR" -H "$TOKEN" -d 'script=
 import hudson.model.Node.Mode
 import hudson.slaves.*
 import jenkins.model.Jenkins
 import hudson.plugins.sshslaves.SSHLauncher
+import hudson.plugins.sshslaves.verifiers.NonVerifyingKeyVerificationStrategy
 
-DumbSlave dumb = new DumbSlave("'$INSTANCE_NAME'",
-"'$INSTANCE_NAME'",
-"/home/ec2-user",
-"3",
-Mode.NORMAL,
-"workers",
-new SSHLauncher("'$INSTANCE_IP'", 22, "'$JENKINS_CREDENTIALS_ID'"),
-RetentionStrategy.INSTANCE)
+SSHLauncher launcher = new SSHLauncher("'$INSTANCE_IP'", 22, "'$JENKINS_CREDENTIALS_ID'")
+launcher.setSshHostKeyVerificationStrategy(new NonVerifyingKeyVerificationStrategy())
+
+DumbSlave dumb = new DumbSlave(
+  "'$INSTANCE_NAME'",
+  "Worker node '$INSTANCE_NAME'",
+  "$WORKDIR",
+  "2",
+  Mode.NORMAL,
+  "workers",
+  launcher,
+  RetentionStrategy.INSTANCE
+)
 Jenkins.instance.addNode(dumb)
 ' $JENKINS_URL/script
 

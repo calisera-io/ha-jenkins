@@ -58,7 +58,23 @@ variable "my_ip" {
 variable "bastion_instance_type" {
   type        = string
   description = "Bastion instance type"
-  default     = "t3.micro"
+  default     = "t3.nano"
+}
+
+variable "bastion_root_block_device" {
+  description = "Bastion root block device configuration"
+  type = object({
+    volume_type           = string
+    volume_size           = number
+    encrypted             = bool
+    delete_on_termination = bool
+  })
+  default = {
+    volume_type           = "gp3"
+    volume_size           = 8
+    encrypted             = true
+    delete_on_termination = true
+  }
 }
 
 variable "jenkins_instance_type" {
@@ -67,10 +83,50 @@ variable "jenkins_instance_type" {
   default     = "t3.micro"
 }
 
+variable "jenkins_root_block_device" {
+  description = "Jenkins server root block device configuration"
+  type = object({
+    volume_type           = string
+    volume_size           = number
+    iops                  = optional(number)
+    throughput            = optional(number)
+    encrypted             = bool
+    delete_on_termination = bool
+  })
+  default = {
+    volume_type           = "gp3"
+    volume_size           = 8
+    iops                  = 3000
+    throughput            = 125
+    encrypted             = true
+    delete_on_termination = true
+  }
+}
+
 variable "worker_instance_type" {
   type        = string
   description = "Worker instance type"
   default     = "t3.micro"
+}
+
+variable "worker_root_block_device" {
+  description = "Jenkins worker root block device configuration"
+  type = object({
+    volume_type           = string
+    volume_size           = number
+    iops                  = optional(number)
+    throughput            = optional(number)
+    encrypted             = bool
+    delete_on_termination = bool
+  })
+  default = {
+    volume_type           = "gp3"
+    volume_size           = 8
+    iops                  = 3000
+    throughput            = 125
+    encrypted             = true
+    delete_on_termination = true
+  }
 }
 
 variable "ssl_certificate_arn" {
@@ -79,8 +135,8 @@ variable "ssl_certificate_arn" {
   default     = ""
 }
 
-variable "worker_credentials_id" {
+variable "jenkins_credentials_id" {
   type        = string
-  description = "Workers credentials id"
-  default     = "jenkins-worker"
+  description = "Jenkins credentials id"
+  default     = "jenkins"
 }
