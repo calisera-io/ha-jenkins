@@ -2,8 +2,8 @@
 
 set -e
 
-plugin_dir=$JENKINS_HOME/plugins
-file_owner=jenkins:jenkins
+plugin_dir="/var/lib/$JENKINS_USER/plugins"
+file_owner="${JENKINS_USER}:$JENKINS_USER"
 
 mkdir -p ${plugin_dir}
 
@@ -12,19 +12,20 @@ installPlugin() {
     if [ "$2" == "1" ]; then
       return 1
     fi
-    echo "Skipped: $1 (already installed)"
     return 0
   else
-    echo "Installing: $1"
-    curl -L --silent --output ${plugin_dir}/${1}.hpi  https://updates.jenkins-ci.org/latest/${1}.hpi
+    echo "$1"
+    curl -L --silent --output ${plugin_dir}/${1}.hpi https://updates.jenkins-ci.org/latest/${1}.hpi
     return 0
   fi
 }
 
+echo "Installing plugins"
+
 while read -r plugin
 do
     installPlugin "$plugin"
-done < "/tmp/plugins/plugins"
+done < "/tmp/plugins/plugins.txt"
 
 changed=1
 maxloops=100
@@ -38,18 +39,18 @@ while [ "$changed"  == "1" ]; do
   ((maxloops--))
   changed=0
   for f in ${plugin_dir}/*.hpi ; do
-    # without optionals
-    #deps=$( unzip -p ${f} META-INF/MANIFEST.MF | tr -d '\r' | sed -e ':a;N;$!ba;s/\n //g' | grep -e "^Plugin-Dependencies: " | awk '{ print $2 }' | tr ',' '\n' | grep -v "resolution:=optional" | awk -F ':' '{ print $1 }' | tr '\n' ' ' )
-    # with optionals
     deps=$( unzip -p ${f} META-INF/MANIFEST.MF | tr -d '\r' | sed -e ':a;N;$!ba;s/\n //g' | grep -e "^Plugin-Dependencies: " | awk '{ print $2 }' | tr ',' '\n' | awk -F ':' '{ print $1 }' | tr '\n' ' ' )
+    if [ -z "$deps" ]; then
+      continue
+    fi
     for plugin in $deps; do
       installPlugin "$plugin" 1 && changed=1
     done
   done
 done
 
-echo "setting correct permissions"
+echo "Setting permissions"
 
 chown -R ${file_owner} ${plugin_dir}
 
-echo "all done"
+echo "All done"

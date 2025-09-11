@@ -58,10 +58,10 @@ check_file_perms() {
 
 check_environment() {
   local file="$1"
-  if ! grep -q "JENKINS_USERNAME" "$file"; then
+  if ! grep -q "JENKINS_ADMIN_ID" "$file"; then
     return 1
   fi
-  if ! grep -q "JENKINS_PASSWORD" "$file"; then
+  if ! grep -q "JENKINS_ADMIN_PASSWORD" "$file"; then
     return 1
   fi
   return 0
@@ -85,21 +85,21 @@ fi
 
 # Check SSH configuration
 if [ -d "$JENKINS_HOME/.ssh" ]; then
-  if [ -f "$JENKINS_HOME/.ssh/id_rsa" ]; then
+  if [ -f "$JENKINS_HOME/.ssh/jenkins_id_rsa" ]; then
     if ! check_file_perms "$JENKINS_HOME/.ssh" "700"; then
       echo "ERROR: Incorrect permissions for .ssh directory"
       ((errors++))
     fi
-    if ! check_file_perms "$JENKINS_HOME/.ssh/id_rsa" "600"; then
+    if ! check_file_perms "$JENKINS_HOME/.ssh/jenkins_id_rsa" "600"; then
       echo "ERROR: Incorrect permissions for private key"
       ((errors++))
     fi
-    if ! check_private_key_format "$JENKINS_HOME/.ssh/id_rsa"; then
+    if ! check_private_key_format "$JENKINS_HOME/.ssh/jenkins_id_rsa"; then
       echo "ERROR: Invalid private key format"
       ((errors++))
     fi
   else
-    echo "ERROR: Private key not found at $JENKINS_HOME/.ssh/id_rsa"
+    echo "ERROR: Private key not found at $JENKINS_HOME/.ssh/jenkins_id_rsa"
     ((errors++))
   fi
 else

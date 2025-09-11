@@ -8,8 +8,8 @@ packer {
 }
 
 locals {
-    jenkins_username = vault("secret/data/jenkins", "jenkins_username")
-    jenkins_password = vault("secret/data/jenkins", "jenkins_password")
+  jenkins_admin_id       = vault("secret/data/jenkins", "jenkins_admin_id")
+  jenkins_admin_password = vault("secret/data/jenkins", "jenkins_admin_password")
 }
 
 variable "shared_credentials_file" {
@@ -32,6 +32,11 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
+variable "jenkins_user" {
+  type    = string
+  default = "jenkins"
+}
+
 source "amazon-ebs" "jenkins" {
   shared_credentials_file = var.shared_credentials_file
   profile                 = var.profile
@@ -49,13 +54,26 @@ source "amazon-ebs" "jenkins" {
     owners      = ["amazon"]
     most_recent = true
   }
+  launch_block_device_mappings {
+    device_name           = "/dev/xvda"
+    volume_size           = 30
+    volume_type           = "gp3"
+    delete_on_termination = true
+  }
 }
 
 build {
   sources = ["source.amazon-ebs.jenkins"]
-  
+
+  provisioner "shell" {
+    inline = [
+      "sudo sh -c 'echo JENKINS_ADMIN_ID=${local.jenkins_admin_id} >> /etc/environment'",
+      "sudo sh -c 'echo JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} >> /etc/environment'"
+    ]
+  }
+
   provisioner "file" {
-    source      = "${path.root}/credentials"
+    source      = "${path.root}/../../credentials"
     destination = "/tmp/"
   }
 
@@ -70,20 +88,13 @@ build {
   }
 
   provisioner "shell" {
-    inline = [
-      "sudo sh -c 'echo JENKINS_USERNAME=${local.jenkins_username} >> /etc/environment'",
-      "sudo sh -c 'echo JENKINS_PASSWORD=${local.jenkins_password} >> /etc/environment'"
-    ]
-  }
-
-  provisioner "shell" {
     script          = "${path.root}/setup.sh"
-    execute_command = "sudo -E -S sh '{{ .Path }}'"
+    execute_command = "sudo JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
   }
 
   provisioner "shell" {
     script          = "${path.root}/check.sh"
-    execute_command = "sudo -E -S sh '{{ .Path }}'"
+    execute_command = "sudo JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
   }
 
 }

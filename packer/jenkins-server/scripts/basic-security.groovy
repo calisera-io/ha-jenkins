@@ -4,8 +4,8 @@ import jenkins.model.*
 import hudson.security.*
 
 def env = System.getenv()
-def username = env['JENKINS_USERNAME'] ?: 'username'
-def password = env['JENKINS_PASSWORD'] ?: 'password'
+def username = env['JENKINS_ADMIN_ID'] ?: 'username'
+def password = env['JENKINS_ADMIN_PASSWORD'] ?: 'password'
 
 def instance = Jenkins.getInstance()
 
