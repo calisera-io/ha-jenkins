@@ -78,7 +78,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "${path.root}/plugins"
+    source      = "${path.root}/jenkins-plugin-manager"
     destination = "/tmp/"
   }
 

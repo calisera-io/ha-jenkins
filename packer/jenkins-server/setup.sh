@@ -34,8 +34,8 @@ rm -rf /tmp/credentials
 #
 # install plugins
 #
-chmod u+x /tmp/plugins/install-plugins.sh
-pushd /tmp/plugins > /dev/null
+pushd /tmp/jenkins-plugin-manager > /dev/null
+chmod u+x install-plugins.sh
 ./install-plugins.sh
 popd > /dev/null
 

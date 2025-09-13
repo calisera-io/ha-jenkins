@@ -33,7 +33,7 @@ echo "Downloading $ASSET..."
 curl -sfL --retry 3 --retry-delay 5 -o "$OUTPUT" "$ASSET_URL"
 
 # === Download SHA256 ===
-echo "Downloading checksum..."
+echo "Downloading checksum $SHA_FILE..."
 if [ ! -s $SHA_FILE ]; then
   curl -sfL --retry 3 --retry-delay 5 -o "$SHA_FILE" "$SHA_URL"
 fi
@@ -50,15 +50,14 @@ else
 fi
 popd > /dev/null
 
-echo "Done."
-
 echo "Installing plugins ..."
 java -jar $OUTPUT \
   --plugin-download-directory $PLUGIN_DIR \
   --plugin-file ./plugins.txt \
-  --verbose
+  --verbose \
+  2>&1
 
 echo "Setting permissions ..."
 chown -R "${JENKINS_USER}:$JENKINS_USER" $PLUGIN_DIR
 
-echo "All done."
+echo "Done."
