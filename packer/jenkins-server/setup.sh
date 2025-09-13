@@ -8,6 +8,7 @@ dnf upgrade
 dnf install -y \
     unzip \
     git \
+    jq \
     java-21-amazon-corretto \
     jenkins
 dnf clean all
@@ -34,7 +35,10 @@ rm -rf /tmp/credentials
 # install plugins
 #
 chmod u+x /tmp/plugins/install-plugins.sh
-/tmp/plugins/install-plugins.sh
+pushd /tmp/plugins > /dev/null
+./install-plugins.sh
+popd > /dev/null
+
 rm -rf /tmp/plugins
 
 #

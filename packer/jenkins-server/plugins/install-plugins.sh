@@ -1,56 +1,64 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+PLUGIN_DIR="/var/lib/$JENKINS_USER/plugins"
+mkdir -p "$PLUGIN_DIR"
 
-plugin_dir="/var/lib/$JENKINS_USER/plugins"
-file_owner="${JENKINS_USER}:$JENKINS_USER"
+REPO="jenkinsci/plugin-installation-manager-tool"
+DOWNLOAD_DIR="./downloads"
+mkdir -p "$DOWNLOAD_DIR"
 
-mkdir -p ${plugin_dir}
+# === Get latest release tag ===
+echo "Fetching latest release for $REPO..."
+LATEST_TAG=$(curl -s https://api.github.com/repos/$REPO/releases/latest \
+    | jq -r .tag_name)
 
-installPlugin() {
-  if [ -f ${plugin_dir}/${1}.hpi -o -f ${plugin_dir}/${1}.jpi ]; then
-    if [ "$2" == "1" ]; then
-      return 1
-    fi
-    return 0
-  else
-    echo "$1"
-    curl -L --silent --output ${plugin_dir}/${1}.hpi https://updates.jenkins-ci.org/latest/${1}.hpi
-    return 0
-  fi
-}
-
-echo "Installing plugins"
-
-while read -r plugin
-do
-    installPlugin "$plugin"
-done < "/tmp/plugins/plugins.txt"
-
-changed=1
-maxloops=100
-
-while [ "$changed"  == "1" ]; do
-  echo "Check for missing dependecies ..."
-  if  [ $maxloops -lt 1 ] ; then
-    echo "Max loop count reached - probably a bug in this script: $0"
+if [[ -z "$LATEST_TAG" || "$LATEST_TAG" == "null" ]]; then
+    echo "Failed to fetch latest release tag"
     exit 1
-  fi
-  ((maxloops--))
-  changed=0
-  for f in ${plugin_dir}/*.hpi ; do
-    deps=$( unzip -p ${f} META-INF/MANIFEST.MF | tr -d '\r' | sed -e ':a;N;$!ba;s/\n //g' | grep -e "^Plugin-Dependencies: " | awk '{ print $2 }' | tr ',' '\n' | awk -F ':' '{ print $1 }' | tr '\n' ' ' )
-    if [ -z "$deps" ]; then
-      continue
-    fi
-    for plugin in $deps; do
-      installPlugin "$plugin" 1 && changed=1
-    done
-  done
-done
+fi
 
-echo "Setting permissions"
+echo "Latest release: $LATEST_TAG"
 
-chown -R ${file_owner} ${plugin_dir}
+# === Construct asset names ===
+ASSET="jenkins-plugin-manager-$LATEST_TAG.jar"
+ASSET_URL="https://github.com/$REPO/releases/download/$LATEST_TAG/$ASSET"
+SHA_URL="$ASSET_URL.sha256"
 
-echo "All done"
+OUTPUT="$DOWNLOAD_DIR/$ASSET"
+SHA_FILE="$OUTPUT.sha256"
+
+# === Download JAR ===
+echo "Downloading $ASSET..."
+curl -sfL --retry 3 --retry-delay 5 -o "$OUTPUT" "$ASSET_URL"
+
+# === Download SHA256 ===
+echo "Downloading checksum..."
+if [ ! -s $SHA_FILE ]; then
+  curl -sfL --retry 3 --retry-delay 5 -o "$SHA_FILE" "$SHA_URL"
+fi
+
+# === Verify checksum ===
+echo "Verifying checksum..."
+pushd "$DOWNLOAD_DIR" > /dev/null
+if sha256sum -c "$(basename "$SHA_FILE")"; then
+    echo "Verification successful: $ASSET"
+else
+    echo "Checksum verification failed!"
+    rm -f "$OUTPUT"
+    exit 1
+fi
+popd > /dev/null
+
+echo "Done."
+
+echo "Installing plugins ..."
+java -jar $OUTPUT \
+  --plugin-download-directory $PLUGIN_DIR \
+  --plugin-file ./plugins.txt \
+  --verbose
+
+echo "Setting permissions ..."
+chown -R "${JENKINS_USER}:$JENKINS_USER" $PLUGIN_DIR
+
+echo "All done."
