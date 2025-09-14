@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
+
+JENKINS_USER=${JENKINS_USER:-jenkins}
+JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID:-admin}
+JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD:-admin}
+
+export JENKINS_USER
 
 curl -s -o /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
 rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
@@ -14,11 +19,19 @@ dnf install -y \
 dnf clean all
 rm -rf /var/cache/dnf/*
 
+JENKINS_UNIT_CONF="/etc/systemd/system/${JENKINS_USER}.service.d"
+mkdir -p "$JENKINS_UNIT_CONF"
+JENKINS_OVERRIDE_CONF="$JENKINS_UNIT_CONF/override.conf"
+cat <<EOF > "$JENKINS_OVERRIDE_CONF"
+[Service]
+Environment="JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID}"
+Environment="JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD}"
+EOF
+
 systemctl daemon-reload
-systemctl enable jenkins
+systemctl enable jenkins 2>&1
 
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
-export JENKINS_USER
 
 #
 # install private key
@@ -34,12 +47,12 @@ rm -rf /tmp/credentials
 #
 # install plugins
 #
-pushd /tmp/jenkins-plugin-manager > /dev/null
+pushd /tmp/plugin-manager > /dev/null
 chmod u+x install-plugins.sh
 ./install-plugins.sh
 popd > /dev/null
 
-rm -rf /tmp/plugins
+rm -rf /tmp/plugin-manager
 
 #
 # install groovy scripts

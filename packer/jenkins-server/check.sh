@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
+
+JENKINS_USER=${JENKINS_USER:-jenkins}
 
 check_first_line() {
     local file="$1"
@@ -58,23 +59,24 @@ check_file_perms() {
 
 check_environment() {
   local file="$1"
-  if ! grep -q "JENKINS_ADMIN_ID" "$file"; then
+  if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$file"; then
     return 1
   fi
-  if ! grep -q "JENKINS_ADMIN_PASSWORD" "$file"; then
+  if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$file"; then
     return 1
   fi
   return 0
 }
 
-JENKINS_HOME=${JENKINS_HOME:-/var/lib/jenkins}
+JENKINS_HOME="/var/lib/$JENKINS_USER" 
+JENKINS_OVERRIDE_CONF="/etc/systemd/system/${JENKINS_USER}.service.d/override.conf"
 
 errors=0
 
 #
 # Check environment configuration
 #
-if ! check_environment "/etc/environment"; then
+if ! check_environment "$JENKINS_OVERRIDE_CONF"; then
   echo "ERROR: Environment configuration missing"
   ((errors++))
 fi
