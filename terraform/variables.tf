@@ -77,6 +77,28 @@ variable "bastion_root_block_device" {
   }
 }
 
+variable "proxy_instance_type" {
+  type        = string
+  description = "Bastion instance type"
+  default     = "t3.nano"
+}
+
+variable "proxy_root_block_device" {
+  description = "Bastion root block device configuration"
+  type = object({
+    volume_type           = string
+    volume_size           = number
+    encrypted             = bool
+    delete_on_termination = bool
+  })
+  default = {
+    volume_type           = "gp3"
+    volume_size           = 8
+    encrypted             = true
+    delete_on_termination = true
+  }
+}
+
 variable "jenkins_instance_type" {
   type        = string
   description = "Jenlins instance type"
