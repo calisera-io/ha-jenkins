@@ -65,21 +65,19 @@ source "amazon-ebs" "jenkins" {
 build {
   sources = ["source.amazon-ebs.jenkins"]
 
- provisioner "shell" {
-    inline = [
-      "sudo sh -c 'echo JENKINS_ADMIN_ID=${local.jenkins_admin_id} >> /etc/environment'",
-      "sudo sh -c 'echo JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} >> /etc/environment'"
-    ]
-  }
-
   provisioner "file" {
     source      = "${path.root}/../../credentials"
     destination = "/tmp/"
   }
 
+  provisioner "file" {
+    source      = "${path.root}/scripts"
+    destination = "/tmp/"
+  }
+
   provisioner "shell" {
     script          = "${path.root}/setup.sh"
-    execute_command = "sudo JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
+    execute_command = "sudo JENKINS_ADMIN_ID=${local.jenkins_admin_id} JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
   }
 
   provisioner "shell" {
