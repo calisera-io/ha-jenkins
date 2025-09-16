@@ -71,7 +71,7 @@ variable "bastion_root_block_device" {
   })
   default = {
     volume_type           = "gp3"
-    volume_size           = 8
+    volume_size           = 30
     encrypted             = true
     delete_on_termination = true
   }
@@ -93,7 +93,7 @@ variable "proxy_root_block_device" {
   })
   default = {
     volume_type           = "gp3"
-    volume_size           = 8
+    volume_size           = 30
     encrypted             = true
     delete_on_termination = true
   }
@@ -117,7 +117,7 @@ variable "jenkins_root_block_device" {
   })
   default = {
     volume_type           = "gp3"
-    volume_size           = 8
+    volume_size           = 30
     iops                  = 3000
     throughput            = 125
     encrypted             = true
@@ -143,7 +143,7 @@ variable "worker_root_block_device" {
   })
   default = {
     volume_type           = "gp3"
-    volume_size           = 8
+    volume_size           = 30
     iops                  = 3000
     throughput            = 125
     encrypted             = true

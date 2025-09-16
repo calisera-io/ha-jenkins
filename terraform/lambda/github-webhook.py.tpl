@@ -5,6 +5,8 @@ import hashlib
 
 ssm = boto3.client('ssm')
 
+jenkins_url = "http://${jenkins_private_ip}:8080"
+
 def lambda_handler(event, context):
     secret = ssm.get_parameter(
         Name='/github/webhook-secret',
