@@ -69,14 +69,14 @@ check_environment() {
 }
 
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
-JENKINS_OVERRIDE_CONF="/etc/systemd/system/${JENKINS_USER}.service.d/override.conf"
+OVERRIDE_CONF="/etc/systemd/system/${JENKINS_USER}.service.d/override.conf"
 
 errors=0
 
 #
 # Check environment configuration
 #
-if ! check_environment "$JENKINS_OVERRIDE_CONF"; then
+if ! check_environment "OVERRIDE_CONF"; then
   echo "ERROR: Environment configuration missing"
   ((errors++))
 fi

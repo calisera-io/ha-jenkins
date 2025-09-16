@@ -66,7 +66,7 @@ build {
   sources = ["source.amazon-ebs.jenkins"]
 
   provisioner "file" {
-    source      = "${path.root}/../../credentials"
+    source      = "${path.root}/../credentials"
     destination = "/tmp/"
   }
 

@@ -43,46 +43,47 @@ check_file_perms() {
 
 check_environment() {
   local file="$1"
-  if ! grep -q "JENKINS_ADMIN_ID" "$file"; then
+  if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$file"; then
     return 1
   fi
-  if ! grep -q "JENKINS_ADMIN_PASSWORD" "$file"; then
+  if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$file"; then
     return 1
   fi
   return 0
 }
 
-WORKDIR="/var/lib/$JENKINS_USER" 
+JENKINS_HOME="/var/lib/$JENKINS_USER" 
+OVERRIDE_CONF="/etc/systemd/system/jenkins-worker.service.d/override.conf"
 
 errors=0
 
-# Check environment configuration
-if ! check_environment "/etc/environment"; then
+# === check environment configuration ===
+if ! check_environment "$OVERRIDE_CONF"; then
   echo "ERROR: Environment configuration missing"
   ((errors++))
 fi
 
 # Check SSH configuration
-if [ -d "$WORKDIR/.ssh" ]; then
-  if [ -f "$WORKDIR/.ssh/authorized_keys" ]; then
-    if ! check_file_perms "$WORKDIR/.ssh" "700"; then
+if [ -d "$JENKINS_HOME/.ssh" ]; then
+  if [ -f "$JENKINS_HOME/.ssh/authorized_keys" ]; then
+    if ! check_file_perms "$JENKINS_HOME/.ssh" "700"; then
       echo "ERROR: Incorrect permissions for .ssh directory"
       ((errors++))
     fi
-    if ! check_file_perms "$WORKDIR/.ssh/authorized_keys" "600"; then
+    if ! check_file_perms "$JENKINS_HOME/.ssh/authorized_keys" "600"; then
       echo "ERROR: Incorrect permissions for authorized keys file"
       ((errors++))
     fi
-    if ! check_authorized_keys_format "$WORKDIR/.ssh/authorized_keys"; then
+    if ! check_authorized_keys_format "$JENKINS_HOME/.ssh/authorized_keys"; then
       echo "ERROR: Invalid authorized keys format"
       ((errors++))
     fi
   else
-    echo "ERROR: Authorized keys file not found at $WORKDIR/.ssh/authorized_keys"
+    echo "ERROR: Authorized keys file not found at $JENKINS_HOME/.ssh/authorized_keys"
     ((errors++))
   fi
 else
-  echo "ERROR: SSH directory not found at $WORKDIR/.ssh"
+  echo "ERROR: SSH directory not found at $JENKINS_HOME/.ssh"
   ((errors++))
 fi
 

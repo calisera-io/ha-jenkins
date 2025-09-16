@@ -27,7 +27,10 @@ import jenkins.model.Jenkins
 import hudson.plugins.sshslaves.SSHLauncher
 import hudson.plugins.sshslaves.verifiers.NonVerifyingKeyVerificationStrategy
 
+def jenkins = Jenkins.getInstance()
+
 SSHLauncher launcher = new SSHLauncher("'$WORKER_IP'", 22, "'$JENKINS_CREDENTIALS_ID'")
+
 launcher.setSshHostKeyVerificationStrategy(new NonVerifyingKeyVerificationStrategy())
 
 DumbSlave dumb = new DumbSlave(
@@ -40,8 +43,8 @@ DumbSlave dumb = new DumbSlave(
   launcher,
   RetentionStrategy.INSTANCE
 )
-Jenkins.instance.addNode(dumb)
-Jenkins.instance.save()
+jenkins.addNode(dumb)
+jenkins.save()
 ' $JENKINS_URL/script
 
 rm -rf $COOKIEJAR
