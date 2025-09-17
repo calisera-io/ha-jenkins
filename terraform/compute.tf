@@ -18,19 +18,19 @@ data "aws_ami" "proxy" {
 
 data "aws_ami" "jenkins" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["self"]
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["jenkins-server-*"]
   }
 }
 
 data "aws_ami" "worker" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["self"]
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["jenkins-worker-*"]
   }
 }
 
@@ -253,7 +253,6 @@ resource "aws_instance" "jenkins" {
   instance_type               = var.jenkins_instance_type
   key_name                    = var.public_key_name
   vpc_security_group_ids      = [aws_security_group.jenkins.id]
-  user_data_base64            = filebase64("./user-data/jenkins.sh")
   subnet_id                   = values(aws_subnet.private_subnet)[0].id
   associate_public_ip_address = false
   root_block_device {
@@ -339,9 +338,9 @@ resource "aws_launch_template" "worker" {
 
 resource "aws_autoscaling_group" "worker" {
   name                = "worker-autoscaling-group"
-  desired_capacity    = 0
-  min_size            = 0
-  max_size            = 0
+  desired_capacity    = 1
+  min_size            = 1
+  max_size            = 1
   vpc_zone_identifier = values(aws_subnet.private_subnet)[*].id
   launch_template {
     id      = aws_launch_template.worker.id
@@ -351,68 +350,68 @@ resource "aws_autoscaling_group" "worker" {
   depends_on        = [aws_instance.jenkins]
 }
 
-locals {
-  lambda_code = templatefile("${path.module}/lambda/github-webhook.py.tpl", {
-    jenkins_private_ip = aws_instance.jenkins.private_ip
-  })
-}
+# locals {
+#   lambda_code = templatefile("${path.module}/lambda/github-webhook.py.tpl", {
+#     jenkins_private_ip = aws_instance.jenkins.private_ip
+#   })
+# }
 
-data "archive_file" "lambda_zip" {
-  type        = "zip"
-  output_path = "${path.module}/lambda/github-webhook.zip"
-  source {
-    content  = local.lambda_code
-    filename = "github-webhook.py"
-  }
-}
+# data "archive_file" "lambda_zip" {
+#   type        = "zip"
+#   output_path = "${path.module}/lambda/github-webhook.zip"
+#   source {
+#     content  = local.lambda_code
+#     filename = "github-webhook.py"
+#   }
+# }
 
-resource "aws_iam_role" "lambda" {
-  name               = "lambda-role"
-  assume_role_policy = file("lambda-policy.json")
-}
+# resource "aws_iam_role" "lambda" {
+#   name               = "lambda-role"
+#   assume_role_policy = file("lambda-policy.json")
+# }
 
-resource "aws_iam_role_policy_attachment" "lambda" {
-  role       = aws_iam_role.lambda.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
+# resource "aws_iam_role_policy_attachment" "lambda" {
+#   role       = aws_iam_role.lambda.name
+#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+# }
 
-resource "aws_security_group" "lambda" {
-  name   = "lambda-security-group-${var.vpc_name}"
-  vpc_id = aws_vpc.custom.id
-  egress {
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    cidr_blocks     = [values(aws_subnet.private_subnet)[0].cidr_block]
-    security_groups = [aws_security_group.jenkins.id]
-  }
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  tags = {
-    Name   = "lambda-security-group-${var.vpc_name}"
-    Author = var.author
-  }
-}
+# resource "aws_security_group" "lambda" {
+#   name   = "lambda-security-group-${var.vpc_name}"
+#   vpc_id = aws_vpc.custom.id
+#   egress {
+#     from_port       = 8080
+#     to_port         = 8080
+#     protocol        = "tcp"
+#     cidr_blocks     = [values(aws_subnet.private_subnet)[0].cidr_block]
+#     security_groups = [aws_security_group.jenkins.id]
+#   }
+#   egress {
+#     from_port   = 443
+#     to_port     = 443
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+#   egress {
+#     from_port   = 80
+#     to_port     = 80
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+#   tags = {
+#     Name   = "lambda-security-group-${var.vpc_name}"
+#     Author = var.author
+#   }
+# }
 
-resource "aws_lambda_function" "github-webhook" {
-  filename         = data.archive_file.lambda_zip.output_path
-  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  function_name    = "github-webhook"
-  runtime          = "python3.12"
-  handler          = "github-webhook.lambda_handler"
-  role             = data.aws_iam_role.lambda.arn
-  vpc_config {
-    subnet_ids         = [values(aws_subnet.private_subnet)[0].id]
-    security_group_ids = [aws_security_group.lambda.id]
-  }
-}
+# resource "aws_lambda_function" "github-webhook" {
+#   filename         = data.archive_file.lambda_zip.output_path
+#   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+#   function_name    = "github-webhook"
+#   runtime          = "python3.12"
+#   handler          = "github-webhook.lambda_handler"
+#   role             = data.aws_iam_role.lambda.arn
+#   vpc_config {
+#     subnet_ids         = [values(aws_subnet.private_subnet)[0].id]
+#     security_group_ids = [aws_security_group.lambda.id]
+#   }
+# }

@@ -6,8 +6,7 @@ JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID:-admin}
 JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD:-admin}
 
 # === install dependencies ===
-dnf install -y dnf-plugins-core
-dnf upgrade
+dnf upgrade --releasever=2023.8.20250915 -y
 dnf install -y \
     git \
     java-21-amazon-corretto \
@@ -15,7 +14,7 @@ dnf install -y \
 dnf clean all
 rm -rf /var/cache/dnf/*
 
-# === create jenkins user ===
+# === add jenkins user ===
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
 useradd -m -d "$JENKINS_HOME" -s /bin/bash "$JENKINS_USER"
 usermod -aG wheel $JENKINS_USER
@@ -23,7 +22,7 @@ usermod -aG docker $JENKINS_USER
 echo "$JENKINS_USER ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$JENKINS_USER"
 chmod 640 "/etc/sudoers.d/$JENKINS_USER"
 
-# === create jenkins worker service ===
+# === add jenkins worker service ===
 cat <<EOF > /etc/systemd/system/jenkins-worker.service
 [Unit]
 Description=Jenkins Worker
@@ -44,7 +43,7 @@ StandardError=journal
 WantedBy=multi-user.target
 EOF
 
-# === create jenkins worker service override configuration ===
+# === add jenkins worker service override configuration ===
 UNIT_CONF_D="/etc/systemd/system/jenkins-worker.service.d"
 mkdir -p "$UNIT_CONF_D"
 OVERRIDE_CONF="$UNIT_CONF_D/override.conf"
@@ -72,4 +71,4 @@ chown -R "$JENKINS_USER":"$JENKINS_USER" "$JENKINS_HOME"
 
 # === reload systemd and enable services ===
 systemctl daemon-reload
-systemctl enable docker
+systemctl enable docker 2>&1

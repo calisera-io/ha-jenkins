@@ -57,13 +57,13 @@ OVERRIDE_CONF="/etc/systemd/system/jenkins-worker.service.d/override.conf"
 
 errors=0
 
-# === check environment configuration ===
+# === check environment configuration provided by override configuration ===
 if ! check_environment "$OVERRIDE_CONF"; then
   echo "ERROR: Environment configuration missing"
   ((errors++))
 fi
 
-# Check SSH configuration
+# === check SSH configuration ===
 if [ -d "$JENKINS_HOME/.ssh" ]; then
   if [ -f "$JENKINS_HOME/.ssh/authorized_keys" ]; then
     if ! check_file_perms "$JENKINS_HOME/.ssh" "700"; then

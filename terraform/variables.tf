@@ -17,7 +17,7 @@ variable "profile" {
 variable "region" {
   type        = string
   description = "AWS region"
-  default     = "us-west-2"
+  default     = "eu-central-1"
 }
 
 variable "author" {
@@ -41,12 +41,13 @@ variable "cidr_block" {
 variable "availability_zones" {
   type        = list(string)
   description = "List of Availability Zones"
-  default     = ["us-west-2a", "us-west-2b"]
+  default     = ["eu-central-1a", "eu-central-1b"]
 }
 
 variable "public_key_name" {
   type        = string
   description = "SSH public key name"
+  default     = ""
 }
 
 variable "my_ip" {

@@ -8,7 +8,7 @@ REPO="jenkinsci/plugin-installation-manager-tool"
 DOWNLOAD_DIR="./downloads"
 mkdir -p "$DOWNLOAD_DIR"
 
-# === Get latest release tag ===
+# === get latest release tag ===
 echo "Fetching latest release for $REPO..."
 LATEST_TAG=$(curl -s https://api.github.com/repos/$REPO/releases/latest \
     | jq -r .tag_name)
@@ -20,7 +20,7 @@ fi
 
 echo "Latest release: $LATEST_TAG"
 
-# === Construct asset names ===
+# === construct asset names ===
 ASSET="jenkins-plugin-manager-$LATEST_TAG.jar"
 ASSET_URL="https://github.com/$REPO/releases/download/$LATEST_TAG/$ASSET"
 SHA_URL="$ASSET_URL.sha256"
@@ -28,17 +28,17 @@ SHA_URL="$ASSET_URL.sha256"
 OUTPUT="$DOWNLOAD_DIR/$ASSET"
 SHA_FILE="$OUTPUT.sha256"
 
-# === Download JAR ===
+# === download JAR ===
 echo "Downloading $ASSET..."
 curl -sfL --retry 3 --retry-delay 5 -o "$OUTPUT" "$ASSET_URL"
 
-# === Download SHA256 ===
+# === download SHA256 ===
 echo "Downloading checksum $SHA_FILE..."
 if [ ! -s $SHA_FILE ]; then
   curl -sfL --retry 3 --retry-delay 5 -o "$SHA_FILE" "$SHA_URL"
 fi
 
-# === Verify checksum ===
+# === verify checksum ===
 echo "Verifying checksum..."
 pushd "$DOWNLOAD_DIR" > /dev/null
 if sha256sum -c "$(basename "$SHA_FILE")"; then

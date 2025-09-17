@@ -73,25 +73,19 @@ OVERRIDE_CONF="/etc/systemd/system/${JENKINS_USER}.service.d/override.conf"
 
 errors=0
 
-#
-# Check environment configuration
-#
-if ! check_environment "OVERRIDE_CONF"; then
+# === check environment configuration provided by override configuration ===
+if ! check_environment "$OVERRIDE_CONF"; then
   echo "ERROR: Environment configuration missing"
   ((errors++))
 fi
 
-#
-# Check Jenkins home directory
-#
+# === check Jenkins home directory ===
 if [ ! -d "$JENKINS_HOME" ]; then
   echo "ERROR: Jenkins home directory not found at $JENKINS_HOME"
   ((errors++))
 fi
 
-#
-# Check SSH configuration
-#
+# === check SSH configuration ===
 if [ -d "$JENKINS_HOME/.ssh" ]; then
   if [ -f "$JENKINS_HOME/.ssh/jenkins_id_rsa" ]; then
     if ! check_file_perms "$JENKINS_HOME/.ssh" "700"; then
@@ -115,25 +109,19 @@ else
   ((errors++))
 fi
 
-#
-# Check plugins
-#
+# === check plugins ===
 if [ ! -d "$JENKINS_HOME/plugins" ]; then
   echo "ERROR: Plugins directory not found at $JENKINS_HOME/plugins"
   ((errors++))
 fi
 
-#
-# Check Groovy init scripts
-#
+# === check Groovy init scripts ===
 if [ ! -d "$JENKINS_HOME/init.groovy.d" ]; then
   echo "ERROR: Groovy init scripts directory not found at $JENKINS_HOME/init.groovy.d"
   ((errors++))
 fi 
 
-#
-# Check setup-wizard state
-#
+# === check setup-wizard state ===
 jenkins_version=$(rpm -qa | grep jenkins | cut -d '-' -f2)
 if ! check_last_non_empty_line "$JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion" "$jenkins_version"; then
   echo "ERROR: Unexpected file contents $JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion"

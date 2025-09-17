@@ -19,12 +19,12 @@ variable "shared_credentials_file" {
 
 variable "profile" {
   type    = string
-  default = "default"
+  default = "packer"
 }
 
 variable "region" {
   type    = string
-  default = "us-west-2"
+  default = "eu-central-1"
 }
 
 variable "instance_type" {
@@ -43,7 +43,7 @@ source "amazon-ebs" "jenkins" {
   region                  = var.region
   instance_type           = var.instance_type
   ssh_username            = "ec2-user"
-  ami_name                = "jenkins-server"
+  ami_name                = "jenkins-server-2.516.3"
   ami_description         = "Amazon Linux Image with Jenkins Server"
   source_ami_filter {
     filters = {

@@ -19,12 +19,12 @@ variable "shared_credentials_file" {
 
 variable "profile" {
   type    = string
-  default = "default"
+  default = "packer"
 }
 
 variable "region" {
   type    = string
-  default = "us-west-2"
+  default = "eu-central-1"
 }
 
 variable "instance_type" {
