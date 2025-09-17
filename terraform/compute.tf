@@ -30,7 +30,7 @@ data "aws_ami" "worker" {
   owners      = ["self"]
   filter {
     name   = "name"
-    values = ["jenkins-worker-*"]
+    values = ["jenkins-worker"]
   }
 }
 
@@ -75,7 +75,7 @@ resource "aws_instance" "proxy" {
   instance_type               = var.proxy_instance_type
   key_name                    = var.public_key_name
   vpc_security_group_ids      = [aws_security_group.proxy.id]
-  user_data                   = base64encode(data.template_file.user_data_proxy.rendered)
+  user_data_base64                   = base64encode(data.template_file.user_data_proxy.rendered)
   subnet_id                   = values(aws_subnet.public_subnet)[1].id
   associate_public_ip_address = true
   root_block_device {
@@ -234,7 +234,7 @@ resource "aws_security_group" "jenkins" {
     from_port       = "8080"
     to_port         = "8080"
     protocol        = "tcp"
-    security_groups = [aws_security_group.proxy.id]
+    security_groups = [aws_security_group.proxy.id, aws_security_group.worker.id]
   }
   egress {
     from_port   = "0"

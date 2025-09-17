@@ -59,7 +59,7 @@ variable "my_ip" {
 variable "bastion_instance_type" {
   type        = string
   description = "Bastion instance type"
-  default     = "t3.nano"
+  default     = "t3.micro"
 }
 
 variable "bastion_root_block_device" {
@@ -81,7 +81,7 @@ variable "bastion_root_block_device" {
 variable "proxy_instance_type" {
   type        = string
   description = "Bastion instance type"
-  default     = "t3.nano"
+  default     = "t3.micro"
 }
 
 variable "proxy_root_block_device" {
