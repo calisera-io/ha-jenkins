@@ -14,6 +14,17 @@ dnf install -y \
 dnf clean all
 rm -rf /var/cache/dnf/*
 
+# === configure swap ===
+fallocate -l 1G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
+# === configure /tmp with larger size ===
+echo 'tmpfs /tmp tmpfs defaults,size=512M 0 0' >> /etc/fstab
+mount -o remount /tmp
+
 # === add jenkins user ===
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
 useradd -m -d "$JENKINS_HOME" -s /bin/bash "$JENKINS_USER"
@@ -26,9 +37,12 @@ chmod 640 "/etc/sudoers.d/$JENKINS_USER"
 cat <<EOF > /etc/systemd/system/jenkins-worker.service
 [Unit]
 Description=Jenkins Worker
-After=network.target
+After=network.target docker.service
+Wants=docker.service
 
 [Service]
+Type=oneshot
+RemainAfterExit=yes
 User=$JENKINS_USER
 Group=$JENKINS_USER
 WorkingDirectory=$JENKINS_HOME
@@ -38,6 +52,9 @@ ExecStop=$JENKINS_HOME/stop-jenkins-worker.sh
 
 StandardOutput=journal
 StandardError=journal
+
+Restart=on-failure
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
