@@ -10,11 +10,7 @@ export JENKINS_USER
 # === install dependencies ===
 curl -s -o /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
 rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-dnf upgrade --releasever=2023.8.20250915 -y
-dnf install -y \
-    git \
-    java-21-amazon-corretto \
-    jenkins
+dnf install -y jenkins
 dnf clean all
 rm -rf /var/cache/dnf/*
 

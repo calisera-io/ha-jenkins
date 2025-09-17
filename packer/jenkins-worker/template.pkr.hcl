@@ -48,10 +48,10 @@ source "amazon-ebs" "jenkins" {
   source_ami_filter {
     filters = {
       virtualization-type = "hvm"
-      name                = "al2023-ami-*-x86_64"
+      name                = "jenkins-base"
       root-device-type    = "ebs"
     }
-    owners      = ["amazon"]
+    owners      = ["self"]
     most_recent = true
   }
   launch_block_device_mappings {

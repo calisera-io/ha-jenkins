@@ -7,11 +7,6 @@ packer {
   }
 }
 
-locals {
-  jenkins_admin_id       = vault("secret/data/jenkins", "jenkins_admin_id")
-  jenkins_admin_password = vault("secret/data/jenkins", "jenkins_admin_password")
-}
-
 variable "shared_credentials_file" {
   type    = string
   default = ""
@@ -32,26 +27,21 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
-variable "jenkins_user" {
-  type    = string
-  default = "jenkins"
-}
-
 source "amazon-ebs" "jenkins" {
   shared_credentials_file = var.shared_credentials_file
   profile                 = var.profile
   region                  = var.region
   instance_type           = var.instance_type
   ssh_username            = "ec2-user"
-  ami_name                = "jenkins-server-2.516.3"
-  ami_description         = "Amazon Linux Image with Jenkins Server"
+  ami_name                = "jenkins-base"
+  ami_description         = "Amazon Linux Base Image for Jenkins"
   source_ami_filter {
     filters = {
       virtualization-type = "hvm"
-      name                = "jenkins-base"
+      name                = "al2023-ami-*-x86_64"
       root-device-type    = "ebs"
     }
-    owners      = ["self"]
+    owners      = ["amazon"]
     most_recent = true
   }
   launch_block_device_mappings {
@@ -65,29 +55,13 @@ source "amazon-ebs" "jenkins" {
 build {
   sources = ["source.amazon-ebs.jenkins"]
 
-  provisioner "file" {
-    source      = "${path.root}/../credentials"
-    destination = "/tmp/"
-  }
-
-  provisioner "file" {
-    source      = "${path.root}/plugin-manager"
-    destination = "/tmp/"
-  }
-
-  provisioner "file" {
-    source      = "${path.root}/scripts"
-    destination = "/tmp/"
-  }
-
   provisioner "shell" {
     script          = "${path.root}/setup.sh"
-    execute_command = "sudo JENKINS_ADMIN_ID=${local.jenkins_admin_id} JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
+    execute_command = "sudo bash '{{ .Path }}'"
   }
 
   provisioner "shell" {
     script          = "${path.root}/check.sh"
-    execute_command = "sudo JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
+    execute_command = "sudo bash '{{ .Path }}'"
   }
-
 }

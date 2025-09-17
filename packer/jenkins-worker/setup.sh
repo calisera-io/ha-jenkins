@@ -6,11 +6,7 @@ JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID:-admin}
 JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD:-admin}
 
 # === install dependencies ===
-dnf upgrade --releasever=2023.8.20250915 -y
-dnf install -y \
-    git \
-    java-21-amazon-corretto \
-    docker
+dnf install -y docker
 dnf clean all
 rm -rf /var/cache/dnf/*
 
@@ -20,10 +16,6 @@ chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
-
-# === configure /tmp with larger size ===
-echo 'tmpfs /tmp tmpfs defaults,size=512M 0 0' >> /etc/fstab
-mount -o remount /tmp
 
 # === add jenkins user ===
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
