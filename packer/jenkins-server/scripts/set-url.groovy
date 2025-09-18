@@ -1,5 +1,3 @@
-#!groovy
-
 import jenkins.model.*
 import jenkins.model.JenkinsLocationConfiguration
 

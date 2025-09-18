@@ -1,5 +1,3 @@
-#!groovy
-
 import jenkins.model.Jenkins
 
 def jenkins = Jenkins.instance

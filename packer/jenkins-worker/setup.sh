@@ -10,17 +10,6 @@ dnf install -y docker
 dnf clean all
 rm -rf /var/cache/dnf/*
 
-# === configure swap ===
-fallocate -l 1G /swapfile
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
-echo '/swapfile none swap sw 0 0' >> /etc/fstab
-
-# === configure /tmp with larger size ===
-echo 'tmpfs /tmp tmpfs defaults,size=1032M 0 0' >> /etc/fstab
-mount -o remount /tmp
-
 # === add jenkins user ===
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
 useradd -m -d "$JENKINS_HOME" -s /bin/bash "$JENKINS_USER"
