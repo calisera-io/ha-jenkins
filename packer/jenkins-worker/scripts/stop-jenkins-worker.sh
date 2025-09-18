@@ -1,35 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-COOKIEJAR="$(mktemp)"
-
-# === get token ===
-get_token() {
-  curl -s -u $JENKINS_ADMIN_ID:$JENKINS_ADMIN_PASSWORD \
-    --cookie-jar "$COOKIEJAR" \
-    ''$JENKINS_URL'/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
-}
-
+COOKIEJAR=$(mktemp)
 WORKER_NAME=$(curl -s http://169.254.169.254/latest/meta-data/local-hostname)
-TOKEN=$(get_token)
+TOKEN=$(curl -s -u $JENKINS_ADMIN_ID:$JENKINS_ADMIN_PASSWORD --cookie-jar "$COOKIEJAR" \
+  "$JENKINS_URL/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
 
-echo "TOKEN $TOKEN"
-echo "WORKER_NAME $WORKER_NAME"
-
-curl -v -u $JENKINS_ADMIN_ID:$JENKINS_ADMIN_PASSWORD --cookie "$COOKIEJAR" -H "$TOKEN" -d 'script=
-#!groovy
-
+curl -s -u $JENKINS_ADMIN_ID:$JENKINS_ADMIN_PASSWORD --cookie "$COOKIEJAR" -H "$TOKEN" \
+  -d "script=
 import jenkins.model.Jenkins
+def node = Jenkins.getInstance().getNode('$WORKER_NAME')
+if (node) { Jenkins.getInstance().removeNode(node); Jenkins.getInstance().save() }
+" $JENKINS_URL/script
 
-def jenkins = Jenkins.getInstance()
-
-def node = jenkins.getNode("'$WORKER_NAME'")
-if (node) {
-    jenkins.removeNode(node)
-    jenkins.save()
-}
-' $JENKINS_URL/script
-
-rm -rf $COOKIEJAR
-
-
+rm "$COOKIEJAR"
