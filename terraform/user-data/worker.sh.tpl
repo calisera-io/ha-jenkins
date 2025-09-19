@@ -12,4 +12,4 @@ done
 # === add JENKINS_URL to service override configuration ===
 OVERRIDE_CONF="/etc/systemd/system/jenkins-worker.service.d/override.conf"
 echo "Environment=\"JENKINS_URL=$JENKINS_URL\"" >> "$OVERRIDE_CONF"
-systemctl start jenkins-worker.service
+systemctl enable --now jenkins-worker.service

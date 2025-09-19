@@ -82,7 +82,7 @@ build {
 
   provisioner "shell" {
     script          = "${path.root}/setup.sh"
-    execute_command = "sudo JENKINS_ADMIN_ID=${local.jenkins_admin_id} JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
+    execute_command = "sudo JENKINS_ADMIN_ID=${local.jenkins_admin_id} JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} bash '{{ .Path }}'"
   }
 
   provisioner "file" {

@@ -4,20 +4,6 @@ set -euo pipefail
 source /tmp/shared-scripts/functions.sh
 rm -rf /tmp/shared-scripts
 
-check_override_conf() {
-  local FILE="$1"
-  if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$FILE"; then
-    return 1
-  fi
-  if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$FILE"; then
-    return 1
-  fi
-  if ! grep -qE '^Environment="JENKINS_HOME=' "$FILE"; then
-    return 1
-  fi
-  return 0
-}
-
 JENKINS_USER=${JENKINS_USER:-jenkins}
 
 JENKINS_HOME="/var/lib/$JENKINS_USER" 

@@ -50,10 +50,12 @@ UNIT_CONF_D="/etc/systemd/system/jenkins-worker.service.d"
 mkdir -p "$UNIT_CONF_D"
 OVERRIDE_CONF="$UNIT_CONF_D/override.conf"
 cat <<EOF > "$OVERRIDE_CONF"
+[Unit]
+After=network-online.target
+Wants=network-online.target
 [Service]
 Environment="JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID}"
 Environment="JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD}"
-Environment="JENKINS_HOME=${JENKINS_HOME}"
 EOF
 
 # === install scripts ===

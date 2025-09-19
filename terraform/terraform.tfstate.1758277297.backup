@@ -1,19 +1,19 @@
 {
   "version": 4,
   "terraform_version": "1.12.2",
-  "serial": 3741,
+  "serial": 2898,
   "lineage": "b3e64b2a-cc0d-c2f1-6c81-a420c6ac1afb",
   "outputs": {
     "bastion": {
-      "value": "3.72.10.178",
+      "value": "3.120.186.38",
       "type": "string"
     },
     "jenkins": {
-      "value": "10.0.1.233",
+      "value": "10.0.1.105",
       "type": "string"
     },
     "proxy": {
-      "value": "ec2-18-197-24-2.eu-central-1.compute.amazonaws.com",
+      "value": "ec2-3-125-38-76.eu-central-1.compute.amazonaws.com",
       "type": "string"
     }
   },
@@ -116,7 +116,7 @@
           "attributes": {
             "allow_unsafe_filter": null,
             "architecture": "x86_64",
-            "arn": "arn:aws:ec2:eu-central-1::image/ami-04b0924add00395bd",
+            "arn": "arn:aws:ec2:eu-central-1::image/ami-02acc6fafbb67e4c2",
             "block_device_mappings": [
               {
                 "device_name": "/dev/xvda",
@@ -124,7 +124,7 @@
                   "delete_on_termination": "true",
                   "encrypted": "false",
                   "iops": "3000",
-                  "snapshot_id": "snap-01d67da0b129ba18e",
+                  "snapshot_id": "snap-0c7361b4871832cb1",
                   "throughput": "125",
                   "volume_initialization_rate": "0",
                   "volume_size": "30",
@@ -135,7 +135,7 @@
               }
             ],
             "boot_mode": "uefi-preferred",
-            "creation_date": "2025-09-19T15:31:40.000Z",
+            "creation_date": "2025-09-19T09:51:53.000Z",
             "deprecation_time": "",
             "description": "Amazon Linux Image with Jenkins Server",
             "ena_support": true,
@@ -149,8 +149,8 @@
               }
             ],
             "hypervisor": "xen",
-            "id": "ami-04b0924add00395bd",
-            "image_id": "ami-04b0924add00395bd",
+            "id": "ami-02acc6fafbb67e4c2",
+            "image_id": "ami-02acc6fafbb67e4c2",
             "image_location": "730323515716/jenkins-server-2.516.3",
             "image_owner_alias": "",
             "image_type": "machine",
@@ -173,7 +173,7 @@
             "region": "eu-central-1",
             "root_device_name": "/dev/xvda",
             "root_device_type": "ebs",
-            "root_snapshot_id": "snap-01d67da0b129ba18e",
+            "root_snapshot_id": "snap-0c7361b4871832cb1",
             "sriov_net_support": "simple",
             "state": "available",
             "state_reason": {
@@ -290,7 +290,7 @@
           "attributes": {
             "allow_unsafe_filter": null,
             "architecture": "x86_64",
-            "arn": "arn:aws:ec2:eu-central-1::image/ami-0207b1c9a8aab3939",
+            "arn": "arn:aws:ec2:eu-central-1::image/ami-02e9ae0401377866d",
             "block_device_mappings": [
               {
                 "device_name": "/dev/xvda",
@@ -298,7 +298,7 @@
                   "delete_on_termination": "true",
                   "encrypted": "false",
                   "iops": "3000",
-                  "snapshot_id": "snap-009388dfa26284a23",
+                  "snapshot_id": "snap-0a3b95aaf9f68db4a",
                   "throughput": "125",
                   "volume_initialization_rate": "0",
                   "volume_size": "30",
@@ -309,7 +309,7 @@
               }
             ],
             "boot_mode": "uefi-preferred",
-            "creation_date": "2025-09-19T11:56:44.000Z",
+            "creation_date": "2025-09-19T10:02:37.000Z",
             "deprecation_time": "",
             "description": "Amazon Linux Image with Worker for Jenkins",
             "ena_support": true,
@@ -323,15 +323,15 @@
               }
             ],
             "hypervisor": "xen",
-            "id": "ami-0207b1c9a8aab3939",
-            "image_id": "ami-0207b1c9a8aab3939",
+            "id": "ami-02e9ae0401377866d",
+            "image_id": "ami-02e9ae0401377866d",
             "image_location": "730323515716/jenkins-worker",
             "image_owner_alias": "",
             "image_type": "machine",
             "imds_support": "v2.0",
             "include_deprecated": false,
             "kernel_id": "",
-            "last_launched_time": "2025-09-19T12:54:16Z",
+            "last_launched_time": "",
             "most_recent": true,
             "name": "jenkins-worker",
             "name_regex": null,
@@ -347,7 +347,7 @@
             "region": "eu-central-1",
             "root_device_name": "/dev/xvda",
             "root_device_type": "ebs",
-            "root_snapshot_id": "snap-009388dfa26284a23",
+            "root_snapshot_id": "snap-0a3b95aaf9f68db4a",
             "sriov_net_support": "simple",
             "state": "available",
             "state_reason": {
@@ -390,7 +390,7 @@
             "response_headers": {
               "Content-Length": "14",
               "Content-Type": "text/plain;charset=UTF-8",
-              "Date": "Fri, 19 Sep 2025 15:45:11 GMT",
+              "Date": "Fri, 19 Sep 2025 10:06:12 GMT",
               "Server": "nginx",
               "Vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
             },
@@ -413,11 +413,11 @@
           "schema_version": 0,
           "attributes": {
             "filename": null,
-            "id": "ef16083a9f106cd62ba3542b5934f8c0bc2502a32a92aee80515ccde99f4c430",
-            "rendered": "#!/usr/bin/env bash\nset -e\n\nJENKINS_URL=\"http://10.0.1.233:8080\"\n\ndnf upgrade -y\ndnf install nginx -y\n\nrm -f /etc/nginx/conf.d/default.conf\n\ncat \u003c\u003cEOF \u003e /etc/nginx/conf.d/reverse-proxy.conf\nserver {\n    listen 80;\n\n    location / {\n        proxy_pass $JENKINS_URL;\n        proxy_set_header Host \\$host;\n        proxy_set_header X-Real-IP \\$remote_addr;\n        proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto \\$scheme;\n    }\n}\nEOF\n\nsudo systemctl enable --now nginx\n\n",
+            "id": "03f21ec46963cd12091c066ff7d87548cf70bf746255d6b1f7128fdd74bfbdb6",
+            "rendered": "#!/usr/bin/env bash\nset -e\n\nJENKINS_URL=\"http://10.0.1.105:8080\"\n\ndnf upgrade -y\ndnf install nginx -y\n\nrm -f /etc/nginx/conf.d/default.conf\n\ncat \u003c\u003cEOF \u003e /etc/nginx/conf.d/reverse-proxy.conf\nserver {\n    listen 80;\n\n    location / {\n        proxy_pass $JENKINS_URL;\n        proxy_set_header Host \\$host;\n        proxy_set_header X-Real-IP \\$remote_addr;\n        proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto \\$scheme;\n    }\n}\nEOF\n\nsudo systemctl enable --now nginx\n\n",
             "template": "#!/usr/bin/env bash\nset -e\n\nJENKINS_URL=\"http://${jenkins_private_ip}:8080\"\n\ndnf upgrade -y\ndnf install nginx -y\n\nrm -f /etc/nginx/conf.d/default.conf\n\ncat \u003c\u003cEOF \u003e /etc/nginx/conf.d/reverse-proxy.conf\nserver {\n    listen 80;\n\n    location / {\n        proxy_pass $JENKINS_URL;\n        proxy_set_header Host \\$host;\n        proxy_set_header X-Real-IP \\$remote_addr;\n        proxy_set_header X-Forwarded-For \\$proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto \\$scheme;\n    }\n}\nEOF\n\nsudo systemctl enable --now nginx\n\n",
             "vars": {
-              "jenkins_private_ip": "10.0.1.233"
+              "jenkins_private_ip": "10.0.1.105"
             }
           },
           "sensitive_attributes": [],
@@ -435,11 +435,11 @@
           "schema_version": 0,
           "attributes": {
             "filename": null,
-            "id": "20fb9a8d5981d37e555b02cf7aa8e49c0b2c314d1d271935c855643e2d8bde4c",
-            "rendered": "#!/usr/bin/env bash\nset -euo pipefail\n\nJENKINS_URL=\"http://10.0.1.233:8080\"\n\n# === wait until jenkins server is healthy ===\nuntil curl -s --head --fail --max-time 3 \"$JENKINS_URL/login\" \u003e /dev/null; do\n  echo \"$(date '+%Y-%m-%d %H:%M:%S') $JENKINS_URL is offline. Retrying in 5s...\"\n  sleep 3\ndone\n\n# === add JENKINS_URL to service override configuration ===\nOVERRIDE_CONF=\"/etc/systemd/system/jenkins-worker.service.d/override.conf\"\necho \"Environment=\\\"JENKINS_URL=$JENKINS_URL\\\"\" \u003e\u003e \"$OVERRIDE_CONF\"\nsystemctl enable --now jenkins-worker.service\n",
-            "template": "#!/usr/bin/env bash\nset -euo pipefail\n\nJENKINS_URL=\"http://${jenkins_private_ip}:8080\"\n\n# === wait until jenkins server is healthy ===\nuntil curl -s --head --fail --max-time 3 \"$JENKINS_URL/login\" \u003e /dev/null; do\n  echo \"$(date '+%Y-%m-%d %H:%M:%S') $JENKINS_URL is offline. Retrying in 5s...\"\n  sleep 3\ndone\n\n# === add JENKINS_URL to service override configuration ===\nOVERRIDE_CONF=\"/etc/systemd/system/jenkins-worker.service.d/override.conf\"\necho \"Environment=\\\"JENKINS_URL=$JENKINS_URL\\\"\" \u003e\u003e \"$OVERRIDE_CONF\"\nsystemctl enable --now jenkins-worker.service\n",
+            "id": "4ade2ae10df05d1a45eff75321f4baa73d7f23a2ae76e4a8a9c22e09e18708e4",
+            "rendered": "#!/usr/bin/env bash\nset -euo pipefail\n\nJENKINS_URL=\"http://10.0.1.105:8080\"\n\n# === wait until jenkins server is healthy ===\nuntil curl -s --head --fail --max-time 3 \"$JENKINS_URL/login\" \u003e /dev/null; do\n  echo \"$(date '+%Y-%m-%d %H:%M:%S') $JENKINS_URL is offline. Retrying in 5s...\"\n  sleep 3\ndone\n\n# === add JENKINS_URL to service override configuration ===\nOVERRIDE_CONF=\"/etc/systemd/system/jenkins-worker.service.d/override.conf\"\necho \"Environment=\\\"JENKINS_URL=$JENKINS_URL\\\"\" \u003e\u003e \"$OVERRIDE_CONF\"\nsystemctl start jenkins-worker.service\n",
+            "template": "#!/usr/bin/env bash\nset -euo pipefail\n\nJENKINS_URL=\"http://${jenkins_private_ip}:8080\"\n\n# === wait until jenkins server is healthy ===\nuntil curl -s --head --fail --max-time 3 \"$JENKINS_URL/login\" \u003e /dev/null; do\n  echo \"$(date '+%Y-%m-%d %H:%M:%S') $JENKINS_URL is offline. Retrying in 5s...\"\n  sleep 3\ndone\n\n# === add JENKINS_URL to service override configuration ===\nOVERRIDE_CONF=\"/etc/systemd/system/jenkins-worker.service.d/override.conf\"\necho \"Environment=\\\"JENKINS_URL=$JENKINS_URL\\\"\" \u003e\u003e \"$OVERRIDE_CONF\"\nsystemctl start jenkins-worker.service\n",
             "vars": {
-              "jenkins_private_ip": "10.0.1.233"
+              "jenkins_private_ip": "10.0.1.105"
             }
           },
           "sensitive_attributes": [],
@@ -456,7 +456,7 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:autoscaling:eu-central-1:730323515716:autoScalingGroup:78f8b5cc-aa86-4f51-993b-f9286763e3c9:autoScalingGroupName/worker-autoscaling-group",
+            "arn": "arn:aws:autoscaling:eu-central-1:730323515716:autoScalingGroup:345f16f4-f9c8-4e76-ba03-ae8315096538:autoScalingGroupName/worker-autoscaling-group",
             "availability_zone_distribution": [
               {
                 "capacity_distribution_strategy": "balanced-best-effort"
@@ -491,7 +491,7 @@
             "launch_configuration": "",
             "launch_template": [
               {
-                "id": "lt-01670aa96d0c7e97f",
+                "id": "lt-0016d643ff6ac3722",
                 "name": "worker-launch-template",
                 "version": "$Latest"
               }
@@ -517,8 +517,8 @@
             "timeouts": null,
             "traffic_source": [],
             "vpc_zone_identifier": [
-              "subnet-03f86ac54c8d4f1a5",
-              "subnet-0934a79157954b047"
+              "subnet-05ba4476cecccfd9b",
+              "subnet-088a84ab652460a95"
             ],
             "wait_for_capacity_timeout": "10m",
             "wait_for_elb_capacity": null,
@@ -529,17 +529,13 @@
           "identity_schema_version": 0,
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjo2MDAwMDAwMDAwMDAsInVwZGF0ZSI6NjAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
           "dependencies": [
-            "aws_eip.nat_gateway_eip",
             "aws_instance.jenkins",
-            "aws_internet_gateway.igw",
             "aws_launch_template.worker",
-            "aws_nat_gateway.nat_gateway",
             "aws_security_group.bastion",
             "aws_security_group.jenkins",
             "aws_security_group.proxy",
             "aws_security_group.worker",
             "aws_subnet.private_subnet",
-            "aws_subnet.public_subnet",
             "aws_vpc.custom",
             "data.aws_ami.jenkins",
             "data.aws_ami.worker",
@@ -559,7 +555,7 @@
           "schema_version": 0,
           "attributes": {
             "adjustment_type": "ChangeInCapacity",
-            "arn": "arn:aws:autoscaling:eu-central-1:730323515716:scalingPolicy:fc04ac8b-398c-462d-9c88-53d9ef746cf8:autoScalingGroupName/worker-autoscaling-group:policyName/scale-in-workers",
+            "arn": "arn:aws:autoscaling:eu-central-1:730323515716:scalingPolicy:d3fd4ace-7171-485e-8add-fd6804c7fe91:autoScalingGroupName/worker-autoscaling-group:policyName/scale-in-workers",
             "autoscaling_group_name": "worker-autoscaling-group",
             "cooldown": 300,
             "enabled": true,
@@ -580,17 +576,13 @@
           "private": "bnVsbA==",
           "dependencies": [
             "aws_autoscaling_group.worker",
-            "aws_eip.nat_gateway_eip",
             "aws_instance.jenkins",
-            "aws_internet_gateway.igw",
             "aws_launch_template.worker",
-            "aws_nat_gateway.nat_gateway",
             "aws_security_group.bastion",
             "aws_security_group.jenkins",
             "aws_security_group.proxy",
             "aws_security_group.worker",
             "aws_subnet.private_subnet",
-            "aws_subnet.public_subnet",
             "aws_vpc.custom",
             "data.aws_ami.jenkins",
             "data.aws_ami.worker",
@@ -610,7 +602,7 @@
           "schema_version": 0,
           "attributes": {
             "adjustment_type": "ChangeInCapacity",
-            "arn": "arn:aws:autoscaling:eu-central-1:730323515716:scalingPolicy:7f8c7e0d-01fd-4ff1-81ca-e7f88b6d4a07:autoScalingGroupName/worker-autoscaling-group:policyName/scale-out-workers",
+            "arn": "arn:aws:autoscaling:eu-central-1:730323515716:scalingPolicy:d23f2651-b883-45d2-8532-698d16a7f7ec:autoScalingGroupName/worker-autoscaling-group:policyName/scale-out-workers",
             "autoscaling_group_name": "worker-autoscaling-group",
             "cooldown": 300,
             "enabled": true,
@@ -631,17 +623,13 @@
           "private": "bnVsbA==",
           "dependencies": [
             "aws_autoscaling_group.worker",
-            "aws_eip.nat_gateway_eip",
             "aws_instance.jenkins",
-            "aws_internet_gateway.igw",
             "aws_launch_template.worker",
-            "aws_nat_gateway.nat_gateway",
             "aws_security_group.bastion",
             "aws_security_group.jenkins",
             "aws_security_group.proxy",
             "aws_security_group.worker",
             "aws_subnet.private_subnet",
-            "aws_subnet.public_subnet",
             "aws_vpc.custom",
             "data.aws_ami.jenkins",
             "data.aws_ami.worker",
@@ -662,7 +650,7 @@
           "attributes": {
             "actions_enabled": true,
             "alarm_actions": [
-              "arn:aws:autoscaling:eu-central-1:730323515716:scalingPolicy:7f8c7e0d-01fd-4ff1-81ca-e7f88b6d4a07:autoScalingGroupName/worker-autoscaling-group:policyName/scale-out-workers"
+              "arn:aws:autoscaling:eu-central-1:730323515716:scalingPolicy:d23f2651-b883-45d2-8532-698d16a7f7ec:autoScalingGroupName/worker-autoscaling-group:policyName/scale-out-workers"
             ],
             "alarm_description": "This metric monitors workers cpu utilization",
             "alarm_name": "high-cpu-workers-alarm",
@@ -702,17 +690,13 @@
           "dependencies": [
             "aws_autoscaling_group.worker",
             "aws_autoscaling_policy.scale-out",
-            "aws_eip.nat_gateway_eip",
             "aws_instance.jenkins",
-            "aws_internet_gateway.igw",
             "aws_launch_template.worker",
-            "aws_nat_gateway.nat_gateway",
             "aws_security_group.bastion",
             "aws_security_group.jenkins",
             "aws_security_group.proxy",
             "aws_security_group.worker",
             "aws_subnet.private_subnet",
-            "aws_subnet.public_subnet",
             "aws_vpc.custom",
             "data.aws_ami.jenkins",
             "data.aws_ami.worker",
@@ -733,7 +717,7 @@
           "attributes": {
             "actions_enabled": true,
             "alarm_actions": [
-              "arn:aws:autoscaling:eu-central-1:730323515716:scalingPolicy:fc04ac8b-398c-462d-9c88-53d9ef746cf8:autoScalingGroupName/worker-autoscaling-group:policyName/scale-in-workers"
+              "arn:aws:autoscaling:eu-central-1:730323515716:scalingPolicy:d3fd4ace-7171-485e-8add-fd6804c7fe91:autoScalingGroupName/worker-autoscaling-group:policyName/scale-in-workers"
             ],
             "alarm_description": "This metric monitors workers cpu utilization",
             "alarm_name": "low-cpu-workers-alarm",
@@ -773,17 +757,13 @@
           "dependencies": [
             "aws_autoscaling_group.worker",
             "aws_autoscaling_policy.scale-in",
-            "aws_eip.nat_gateway_eip",
             "aws_instance.jenkins",
-            "aws_internet_gateway.igw",
             "aws_launch_template.worker",
-            "aws_nat_gateway.nat_gateway",
             "aws_security_group.bastion",
             "aws_security_group.jenkins",
             "aws_security_group.proxy",
             "aws_security_group.worker",
             "aws_subnet.private_subnet",
-            "aws_subnet.public_subnet",
             "aws_vpc.custom",
             "data.aws_ami.jenkins",
             "data.aws_ami.worker",
@@ -803,15 +783,15 @@
           "schema_version": 0,
           "attributes": {
             "address": null,
-            "allocation_id": "eipalloc-030be508ad1e21aee",
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:elastic-ip/eipalloc-030be508ad1e21aee",
+            "allocation_id": "eipalloc-0e6e3f6e34bc3454d",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:elastic-ip/eipalloc-0e6e3f6e34bc3454d",
             "associate_with_private_ip": null,
             "association_id": "",
             "carrier_ip": "",
             "customer_owned_ip": "",
             "customer_owned_ipv4_pool": "",
             "domain": "vpc",
-            "id": "eipalloc-030be508ad1e21aee",
+            "id": "eipalloc-0e6e3f6e34bc3454d",
             "instance": "",
             "ipam_pool_id": null,
             "network_border_group": "eu-central-1",
@@ -819,8 +799,8 @@
             "private_dns": null,
             "private_ip": "",
             "ptr_record": "",
-            "public_dns": "ec2-3-72-119-12.eu-central-1.compute.amazonaws.com",
-            "public_ip": "3.72.119.12",
+            "public_dns": "ec2-3-126-48-88.eu-central-1.compute.amazonaws.com",
+            "public_ip": "3.126.48.88",
             "public_ipv4_pool": "amazon",
             "region": "eu-central-1",
             "tags": {
@@ -849,7 +829,7 @@
           "schema_version": 2,
           "attributes": {
             "ami": "ami-08559d76178317da6",
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:instance/i-04899bd83dab33995",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:instance/i-0f4b527f96ff0e74d",
             "associate_public_ip_address": true,
             "availability_zone": "eu-central-1a",
             "capacity_reservation_specification": [
@@ -887,7 +867,7 @@
             "host_id": "",
             "host_resource_group_arn": null,
             "iam_instance_profile": "",
-            "id": "i-04899bd83dab33995",
+            "id": "i-0f4b527f96ff0e74d",
             "instance_initiated_shutdown_behavior": "stop",
             "instance_lifecycle": "",
             "instance_market_options": [],
@@ -921,11 +901,11 @@
             "primary_network_interface": [
               {
                 "delete_on_termination": true,
-                "network_interface_id": "eni-06219c3b3e045bf4b"
+                "network_interface_id": "eni-05fc386be7c92b1a5"
               }
             ],
-            "primary_network_interface_id": "eni-06219c3b3e045bf4b",
-            "private_dns": "ip-10-0-0-13.eu-central-1.compute.internal",
+            "primary_network_interface_id": "eni-05fc386be7c92b1a5",
+            "private_dns": "ip-10-0-0-249.eu-central-1.compute.internal",
             "private_dns_name_options": [
               {
                 "enable_resource_name_dns_a_record": false,
@@ -933,9 +913,9 @@
                 "hostname_type": "ip-name"
               }
             ],
-            "private_ip": "10.0.0.13",
-            "public_dns": "ec2-3-72-10-178.eu-central-1.compute.amazonaws.com",
-            "public_ip": "3.72.10.178",
+            "private_ip": "10.0.0.249",
+            "public_dns": "ec2-3-120-186-38.eu-central-1.compute.amazonaws.com",
+            "public_ip": "3.120.186.38",
             "region": "eu-central-1",
             "root_block_device": [
               {
@@ -947,7 +927,7 @@
                 "tags": null,
                 "tags_all": {},
                 "throughput": 125,
-                "volume_id": "vol-03d2dae27854eb09e",
+                "volume_id": "vol-04dba109dbb423f25",
                 "volume_size": 30,
                 "volume_type": "gp3"
               }
@@ -956,7 +936,7 @@
             "security_groups": [],
             "source_dest_check": true,
             "spot_instance_request_id": "",
-            "subnet_id": "subnet-0a95ec050794ca026",
+            "subnet_id": "subnet-0dc176c6020205a9b",
             "tags": {
               "Author": "Marcus Hogh",
               "Name": "bastion-jenkins"
@@ -972,14 +952,14 @@
             "user_data_replace_on_change": false,
             "volume_tags": null,
             "vpc_security_group_ids": [
-              "sg-03bcb917bef60bfac"
+              "sg-09b196095e4ddb7f3"
             ]
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "i-04899bd83dab33995",
+            "id": "i-0f4b527f96ff0e74d",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
@@ -1002,8 +982,8 @@
         {
           "schema_version": 2,
           "attributes": {
-            "ami": "ami-04b0924add00395bd",
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:instance/i-09f5af187a330257b",
+            "ami": "ami-02acc6fafbb67e4c2",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:instance/i-0a7b22309ffe5aa42",
             "associate_public_ip_address": false,
             "availability_zone": "eu-central-1a",
             "capacity_reservation_specification": [
@@ -1041,7 +1021,7 @@
             "host_id": "",
             "host_resource_group_arn": null,
             "iam_instance_profile": "",
-            "id": "i-09f5af187a330257b",
+            "id": "i-0a7b22309ffe5aa42",
             "instance_initiated_shutdown_behavior": "stop",
             "instance_lifecycle": "",
             "instance_market_options": [],
@@ -1075,11 +1055,11 @@
             "primary_network_interface": [
               {
                 "delete_on_termination": true,
-                "network_interface_id": "eni-03afac671ca80c25c"
+                "network_interface_id": "eni-06dfd8d123d1c5229"
               }
             ],
-            "primary_network_interface_id": "eni-03afac671ca80c25c",
-            "private_dns": "ip-10-0-1-233.eu-central-1.compute.internal",
+            "primary_network_interface_id": "eni-06dfd8d123d1c5229",
+            "private_dns": "ip-10-0-1-105.eu-central-1.compute.internal",
             "private_dns_name_options": [
               {
                 "enable_resource_name_dns_a_record": false,
@@ -1087,7 +1067,7 @@
                 "hostname_type": "ip-name"
               }
             ],
-            "private_ip": "10.0.1.233",
+            "private_ip": "10.0.1.105",
             "public_dns": "",
             "public_ip": "",
             "region": "eu-central-1",
@@ -1101,7 +1081,7 @@
                 "tags": null,
                 "tags_all": {},
                 "throughput": 125,
-                "volume_id": "vol-022f3cc2943b4d6a7",
+                "volume_id": "vol-0bfeccdccd0f8de2f",
                 "volume_size": 30,
                 "volume_type": "gp3"
               }
@@ -1110,7 +1090,7 @@
             "security_groups": [],
             "source_dest_check": true,
             "spot_instance_request_id": "",
-            "subnet_id": "subnet-0934a79157954b047",
+            "subnet_id": "subnet-05ba4476cecccfd9b",
             "tags": {
               "Author": "Marcus Hogh",
               "Name": "server-jenkins"
@@ -1126,26 +1106,22 @@
             "user_data_replace_on_change": false,
             "volume_tags": null,
             "vpc_security_group_ids": [
-              "sg-02213e4cbb7be9b90"
+              "sg-0c35f9dc5f12662d1"
             ]
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "i-09f5af187a330257b",
+            "id": "i-0a7b22309ffe5aa42",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
           "dependencies": [
-            "aws_eip.nat_gateway_eip",
-            "aws_internet_gateway.igw",
-            "aws_nat_gateway.nat_gateway",
             "aws_security_group.bastion",
             "aws_security_group.jenkins",
             "aws_security_group.proxy",
             "aws_subnet.private_subnet",
-            "aws_subnet.public_subnet",
             "aws_vpc.custom",
             "data.aws_ami.jenkins",
             "data.http.my_ip"
@@ -1163,7 +1139,7 @@
           "schema_version": 2,
           "attributes": {
             "ami": "ami-08559d76178317da6",
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:instance/i-0fd6c0636ebf0fefa",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:instance/i-0f1cd85e00a0b9447",
             "associate_public_ip_address": true,
             "availability_zone": "eu-central-1b",
             "capacity_reservation_specification": [
@@ -1201,7 +1177,7 @@
             "host_id": "",
             "host_resource_group_arn": null,
             "iam_instance_profile": "",
-            "id": "i-0fd6c0636ebf0fefa",
+            "id": "i-0f1cd85e00a0b9447",
             "instance_initiated_shutdown_behavior": "stop",
             "instance_lifecycle": "",
             "instance_market_options": [],
@@ -1235,11 +1211,11 @@
             "primary_network_interface": [
               {
                 "delete_on_termination": true,
-                "network_interface_id": "eni-09d8c7193ed2bab55"
+                "network_interface_id": "eni-0c9b5c39302127168"
               }
             ],
-            "primary_network_interface_id": "eni-09d8c7193ed2bab55",
-            "private_dns": "ip-10-0-2-23.eu-central-1.compute.internal",
+            "primary_network_interface_id": "eni-0c9b5c39302127168",
+            "private_dns": "ip-10-0-2-52.eu-central-1.compute.internal",
             "private_dns_name_options": [
               {
                 "enable_resource_name_dns_a_record": false,
@@ -1247,9 +1223,9 @@
                 "hostname_type": "ip-name"
               }
             ],
-            "private_ip": "10.0.2.23",
-            "public_dns": "ec2-18-197-24-2.eu-central-1.compute.amazonaws.com",
-            "public_ip": "18.197.24.2",
+            "private_ip": "10.0.2.52",
+            "public_dns": "ec2-3-125-38-76.eu-central-1.compute.amazonaws.com",
+            "public_ip": "3.125.38.76",
             "region": "eu-central-1",
             "root_block_device": [
               {
@@ -1261,7 +1237,7 @@
                 "tags": null,
                 "tags_all": {},
                 "throughput": 125,
-                "volume_id": "vol-043e08f1e3a4fa3be",
+                "volume_id": "vol-05f8d30a6bc46e095",
                 "volume_size": 30,
                 "volume_type": "gp3"
               }
@@ -1270,7 +1246,7 @@
             "security_groups": [],
             "source_dest_check": true,
             "spot_instance_request_id": "",
-            "subnet_id": "subnet-0f417af7dc9a0179a",
+            "subnet_id": "subnet-0b79da1037f9e797a",
             "tags": {
               "Author": "Marcus Hogh",
               "Name": "proxy-jenkins"
@@ -1282,26 +1258,23 @@
             "tenancy": "default",
             "timeouts": null,
             "user_data": null,
-            "user_data_base64": "IyEvdXNyL2Jpbi9lbnYgYmFzaApzZXQgLWUKCkpFTktJTlNfVVJMPSJodHRwOi8vMTAuMC4xLjIzMzo4MDgwIgoKZG5mIHVwZ3JhZGUgLXkKZG5mIGluc3RhbGwgbmdpbnggLXkKCnJtIC1mIC9ldGMvbmdpbngvY29uZi5kL2RlZmF1bHQuY29uZgoKY2F0IDw8RU9GID4gL2V0Yy9uZ2lueC9jb25mLmQvcmV2ZXJzZS1wcm94eS5jb25mCnNlcnZlciB7CiAgICBsaXN0ZW4gODA7CgogICAgbG9jYXRpb24gLyB7CiAgICAgICAgcHJveHlfcGFzcyAkSkVOS0lOU19VUkw7CiAgICAgICAgcHJveHlfc2V0X2hlYWRlciBIb3N0IFwkaG9zdDsKICAgICAgICBwcm94eV9zZXRfaGVhZGVyIFgtUmVhbC1JUCBcJHJlbW90ZV9hZGRyOwogICAgICAgIHByb3h5X3NldF9oZWFkZXIgWC1Gb3J3YXJkZWQtRm9yIFwkcHJveHlfYWRkX3hfZm9yd2FyZGVkX2ZvcjsKICAgICAgICBwcm94eV9zZXRfaGVhZGVyIFgtRm9yd2FyZGVkLVByb3RvIFwkc2NoZW1lOwogICAgfQp9CkVPRgoKc3VkbyBzeXN0ZW1jdGwgZW5hYmxlIC0tbm93IG5naW54Cgo=",
+            "user_data_base64": "IyEvdXNyL2Jpbi9lbnYgYmFzaApzZXQgLWUKCkpFTktJTlNfVVJMPSJodHRwOi8vMTAuMC4xLjEwNTo4MDgwIgoKZG5mIHVwZ3JhZGUgLXkKZG5mIGluc3RhbGwgbmdpbnggLXkKCnJtIC1mIC9ldGMvbmdpbngvY29uZi5kL2RlZmF1bHQuY29uZgoKY2F0IDw8RU9GID4gL2V0Yy9uZ2lueC9jb25mLmQvcmV2ZXJzZS1wcm94eS5jb25mCnNlcnZlciB7CiAgICBsaXN0ZW4gODA7CgogICAgbG9jYXRpb24gLyB7CiAgICAgICAgcHJveHlfcGFzcyAkSkVOS0lOU19VUkw7CiAgICAgICAgcHJveHlfc2V0X2hlYWRlciBIb3N0IFwkaG9zdDsKICAgICAgICBwcm94eV9zZXRfaGVhZGVyIFgtUmVhbC1JUCBcJHJlbW90ZV9hZGRyOwogICAgICAgIHByb3h5X3NldF9oZWFkZXIgWC1Gb3J3YXJkZWQtRm9yIFwkcHJveHlfYWRkX3hfZm9yd2FyZGVkX2ZvcjsKICAgICAgICBwcm94eV9zZXRfaGVhZGVyIFgtRm9yd2FyZGVkLVByb3RvIFwkc2NoZW1lOwogICAgfQp9CkVPRgoKc3VkbyBzeXN0ZW1jdGwgZW5hYmxlIC0tbm93IG5naW54Cgo=",
             "user_data_replace_on_change": false,
             "volume_tags": null,
             "vpc_security_group_ids": [
-              "sg-04ddc8f6442ef9422"
+              "sg-0a113f74f4aa1c8af"
             ]
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "i-0fd6c0636ebf0fefa",
+            "id": "i-0f1cd85e00a0b9447",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMiJ9",
           "dependencies": [
-            "aws_eip.nat_gateway_eip",
             "aws_instance.jenkins",
-            "aws_internet_gateway.igw",
-            "aws_nat_gateway.nat_gateway",
             "aws_security_group.bastion",
             "aws_security_group.jenkins",
             "aws_security_group.proxy",
@@ -1325,8 +1298,8 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:internet-gateway/igw-04d98a99b835a053b",
-            "id": "igw-04d98a99b835a053b",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:internet-gateway/igw-069dd18d50eaed9ed",
+            "id": "igw-069dd18d50eaed9ed",
             "owner_id": "730323515716",
             "region": "eu-central-1",
             "tags": {
@@ -1338,7 +1311,7 @@
               "Name": "igw-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
@@ -1358,7 +1331,7 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:launch-template/lt-01670aa96d0c7e97f",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:launch-template/lt-0016d643ff6ac3722",
             "block_device_mappings": [
               {
                 "device_name": "/dev/xvda",
@@ -1390,8 +1363,8 @@
             "enclave_options": [],
             "hibernation_options": [],
             "iam_instance_profile": [],
-            "id": "lt-01670aa96d0c7e97f",
-            "image_id": "ami-0207b1c9a8aab3939",
+            "id": "lt-0016d643ff6ac3722",
+            "image_id": "ami-02e9ae0401377866d",
             "instance_initiated_shutdown_behavior": "",
             "instance_market_options": [],
             "instance_requirements": [],
@@ -1436,7 +1409,7 @@
                 "primary_ipv6": "",
                 "private_ip_address": "",
                 "security_groups": [
-                  "sg-0daf527e0899905de"
+                  "sg-06e0c2d9cbbd69c0c"
                 ],
                 "subnet_id": ""
               }
@@ -1457,23 +1430,19 @@
             "tags": null,
             "tags_all": {},
             "update_default_version": null,
-            "user_data": "IyEvdXNyL2Jpbi9lbnYgYmFzaApzZXQgLWV1byBwaXBlZmFpbAoKSkVOS0lOU19VUkw9Imh0dHA6Ly8xMC4wLjEuMjMzOjgwODAiCgojID09PSB3YWl0IHVudGlsIGplbmtpbnMgc2VydmVyIGlzIGhlYWx0aHkgPT09CnVudGlsIGN1cmwgLXMgLS1oZWFkIC0tZmFpbCAtLW1heC10aW1lIDMgIiRKRU5LSU5TX1VSTC9sb2dpbiIgPiAvZGV2L251bGw7IGRvCiAgZWNobyAiJChkYXRlICcrJVktJW0tJWQgJUg6JU06JVMnKSAkSkVOS0lOU19VUkwgaXMgb2ZmbGluZS4gUmV0cnlpbmcgaW4gNXMuLi4iCiAgc2xlZXAgMwpkb25lCgojID09PSBhZGQgSkVOS0lOU19VUkwgdG8gc2VydmljZSBvdmVycmlkZSBjb25maWd1cmF0aW9uID09PQpPVkVSUklERV9DT05GPSIvZXRjL3N5c3RlbWQvc3lzdGVtL2plbmtpbnMtd29ya2VyLnNlcnZpY2UuZC9vdmVycmlkZS5jb25mIgplY2hvICJFbnZpcm9ubWVudD1cIkpFTktJTlNfVVJMPSRKRU5LSU5TX1VSTFwiIiA+PiAiJE9WRVJSSURFX0NPTkYiCnN5c3RlbWN0bCBlbmFibGUgLS1ub3cgamVua2lucy13b3JrZXIuc2VydmljZQo=",
+            "user_data": "IyEvdXNyL2Jpbi9lbnYgYmFzaApzZXQgLWV1byBwaXBlZmFpbAoKSkVOS0lOU19VUkw9Imh0dHA6Ly8xMC4wLjEuMTA1OjgwODAiCgojID09PSB3YWl0IHVudGlsIGplbmtpbnMgc2VydmVyIGlzIGhlYWx0aHkgPT09CnVudGlsIGN1cmwgLXMgLS1oZWFkIC0tZmFpbCAtLW1heC10aW1lIDMgIiRKRU5LSU5TX1VSTC9sb2dpbiIgPiAvZGV2L251bGw7IGRvCiAgZWNobyAiJChkYXRlICcrJVktJW0tJWQgJUg6JU06JVMnKSAkSkVOS0lOU19VUkwgaXMgb2ZmbGluZS4gUmV0cnlpbmcgaW4gNXMuLi4iCiAgc2xlZXAgMwpkb25lCgojID09PSBhZGQgSkVOS0lOU19VUkwgdG8gc2VydmljZSBvdmVycmlkZSBjb25maWd1cmF0aW9uID09PQpPVkVSUklERV9DT05GPSIvZXRjL3N5c3RlbWQvc3lzdGVtL2plbmtpbnMtd29ya2VyLnNlcnZpY2UuZC9vdmVycmlkZS5jb25mIgplY2hvICJFbnZpcm9ubWVudD1cIkpFTktJTlNfVVJMPSRKRU5LSU5TX1VSTFwiIiA+PiAiJE9WRVJSSURFX0NPTkYiCnN5c3RlbWN0bCBzdGFydCBqZW5raW5zLXdvcmtlci5zZXJ2aWNlCg==",
             "vpc_security_group_ids": null
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "private": "bnVsbA==",
           "dependencies": [
-            "aws_eip.nat_gateway_eip",
             "aws_instance.jenkins",
-            "aws_internet_gateway.igw",
-            "aws_nat_gateway.nat_gateway",
             "aws_security_group.bastion",
             "aws_security_group.jenkins",
             "aws_security_group.proxy",
             "aws_security_group.worker",
             "aws_subnet.private_subnet",
-            "aws_subnet.public_subnet",
             "aws_vpc.custom",
             "data.aws_ami.jenkins",
             "data.aws_ami.worker",
@@ -1492,18 +1461,18 @@
         {
           "schema_version": 0,
           "attributes": {
-            "allocation_id": "eipalloc-030be508ad1e21aee",
-            "association_id": "eipassoc-0b930212bbfa41a90",
+            "allocation_id": "eipalloc-0e6e3f6e34bc3454d",
+            "association_id": "eipassoc-02f7b730d081ab394",
             "connectivity_type": "public",
-            "id": "nat-0db6fcd599cc5bfea",
-            "network_interface_id": "eni-0858dc81b66ed110f",
-            "private_ip": "10.0.0.43",
-            "public_ip": "3.72.119.12",
+            "id": "nat-068854130f5e96de0",
+            "network_interface_id": "eni-0e44285789c11a000",
+            "private_ip": "10.0.0.250",
+            "public_ip": "3.126.48.88",
             "region": "eu-central-1",
             "secondary_allocation_ids": [],
             "secondary_private_ip_address_count": 0,
             "secondary_private_ip_addresses": [],
-            "subnet_id": "subnet-0a95ec050794ca026",
+            "subnet_id": "subnet-0dc176c6020205a9b",
             "tags": {
               "Author": "Marcus Hogh",
               "Name": "nat-gateway-jenkins"
@@ -1535,8 +1504,8 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:route-table/rtb-0c9b1df982601f791",
-            "id": "rtb-0c9b1df982601f791",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:route-table/rtb-0543d1820c662a3d1",
+            "id": "rtb-0543d1820c662a3d1",
             "owner_id": "730323515716",
             "propagating_vgws": [],
             "region": "eu-central-1",
@@ -1547,7 +1516,7 @@
                 "core_network_arn": "",
                 "destination_prefix_list_id": "",
                 "egress_only_gateway_id": "",
-                "gateway_id": "nat-0db6fcd599cc5bfea",
+                "gateway_id": "nat-068854130f5e96de0",
                 "ipv6_cidr_block": "",
                 "local_gateway_id": "",
                 "nat_gateway_id": "",
@@ -1566,13 +1535,13 @@
               "Name": "private-route-table-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "rtb-0c9b1df982601f791",
+            "id": "rtb-0543d1820c662a3d1",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
@@ -1595,8 +1564,8 @@
         {
           "schema_version": 0,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:route-table/rtb-023efd730a3b56d12",
-            "id": "rtb-023efd730a3b56d12",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:route-table/rtb-00f669b306e3180d0",
+            "id": "rtb-00f669b306e3180d0",
             "owner_id": "730323515716",
             "propagating_vgws": [],
             "region": "eu-central-1",
@@ -1607,7 +1576,7 @@
                 "core_network_arn": "",
                 "destination_prefix_list_id": "",
                 "egress_only_gateway_id": "",
-                "gateway_id": "igw-04d98a99b835a053b",
+                "gateway_id": "igw-069dd18d50eaed9ed",
                 "ipv6_cidr_block": "",
                 "local_gateway_id": "",
                 "nat_gateway_id": "",
@@ -1626,13 +1595,13 @@
               "Name": "public-route-table-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "rtb-023efd730a3b56d12",
+            "id": "rtb-00f669b306e3180d0",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
@@ -1654,10 +1623,10 @@
           "schema_version": 0,
           "attributes": {
             "gateway_id": "",
-            "id": "rtbassoc-047e80587d1f4e025",
+            "id": "rtbassoc-00056433f69d3b78a",
             "region": "eu-central-1",
-            "route_table_id": "rtb-0c9b1df982601f791",
-            "subnet_id": "subnet-0934a79157954b047",
+            "route_table_id": "rtb-0543d1820c662a3d1",
+            "subnet_id": "subnet-05ba4476cecccfd9b",
             "timeouts": null
           },
           "sensitive_attributes": [],
@@ -1678,10 +1647,10 @@
           "schema_version": 0,
           "attributes": {
             "gateway_id": "",
-            "id": "rtbassoc-01cc0b033d704223f",
+            "id": "rtbassoc-030fbe2f59c60c383",
             "region": "eu-central-1",
-            "route_table_id": "rtb-0c9b1df982601f791",
-            "subnet_id": "subnet-03f86ac54c8d4f1a5",
+            "route_table_id": "rtb-0543d1820c662a3d1",
+            "subnet_id": "subnet-088a84ab652460a95",
             "timeouts": null
           },
           "sensitive_attributes": [],
@@ -1710,10 +1679,10 @@
           "schema_version": 0,
           "attributes": {
             "gateway_id": "",
-            "id": "rtbassoc-0c5a15ded60aff9ab",
+            "id": "rtbassoc-0695362d508096d29",
             "region": "eu-central-1",
-            "route_table_id": "rtb-023efd730a3b56d12",
-            "subnet_id": "subnet-0a95ec050794ca026",
+            "route_table_id": "rtb-00f669b306e3180d0",
+            "subnet_id": "subnet-0dc176c6020205a9b",
             "timeouts": null
           },
           "sensitive_attributes": [],
@@ -1731,10 +1700,10 @@
           "schema_version": 0,
           "attributes": {
             "gateway_id": "",
-            "id": "rtbassoc-0f03bae0f20546c0b",
+            "id": "rtbassoc-09acf79c81670af4a",
             "region": "eu-central-1",
-            "route_table_id": "rtb-023efd730a3b56d12",
-            "subnet_id": "subnet-0f417af7dc9a0179a",
+            "route_table_id": "rtb-00f669b306e3180d0",
+            "subnet_id": "subnet-0b79da1037f9e797a",
             "timeouts": null
           },
           "sensitive_attributes": [],
@@ -1758,7 +1727,7 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:security-group/sg-03bcb917bef60bfac",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:security-group/sg-09b196095e4ddb7f3",
             "description": "Allow tcp/22 from my IP",
             "egress": [
               {
@@ -1775,7 +1744,7 @@
                 "to_port": 0
               }
             ],
-            "id": "sg-03bcb917bef60bfac",
+            "id": "sg-09b196095e4ddb7f3",
             "ingress": [
               {
                 "cidr_blocks": [
@@ -1805,13 +1774,13 @@
               "Name": "bastion-security-group-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "sg-03bcb917bef60bfac",
+            "id": "sg-09b196095e4ddb7f3",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
@@ -1831,7 +1800,7 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:security-group/sg-02213e4cbb7be9b90",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:security-group/sg-0c35f9dc5f12662d1",
             "description": "Allow tcp/8080 from load balancer and tcp/22 from bastion",
             "egress": [
               {
@@ -1848,7 +1817,7 @@
                 "to_port": 0
               }
             ],
-            "id": "sg-02213e4cbb7be9b90",
+            "id": "sg-0c35f9dc5f12662d1",
             "ingress": [
               {
                 "cidr_blocks": [
@@ -1861,7 +1830,7 @@
                 "prefix_list_ids": [],
                 "protocol": "tcp",
                 "security_groups": [
-                  "sg-04ddc8f6442ef9422"
+                  "sg-0a113f74f4aa1c8af"
                 ],
                 "self": false,
                 "to_port": 8080
@@ -1874,7 +1843,7 @@
                 "prefix_list_ids": [],
                 "protocol": "tcp",
                 "security_groups": [
-                  "sg-03bcb917bef60bfac"
+                  "sg-09b196095e4ddb7f3"
                 ],
                 "self": false,
                 "to_port": 22
@@ -1894,13 +1863,13 @@
               "Name": "jenkins-security-group-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "sg-02213e4cbb7be9b90",
+            "id": "sg-0c35f9dc5f12662d1",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
@@ -1923,7 +1892,7 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:security-group/sg-04ddc8f6442ef9422",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:security-group/sg-0a113f74f4aa1c8af",
             "description": "Allow tcp/80 from my IP",
             "egress": [
               {
@@ -1940,7 +1909,7 @@
                 "to_port": 0
               }
             ],
-            "id": "sg-04ddc8f6442ef9422",
+            "id": "sg-0a113f74f4aa1c8af",
             "ingress": [
               {
                 "cidr_blocks": [
@@ -1970,13 +1939,13 @@
               "Name": "proxy-security-group-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "sg-04ddc8f6442ef9422",
+            "id": "sg-0a113f74f4aa1c8af",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
@@ -1996,7 +1965,7 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:security-group/sg-0daf527e0899905de",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:security-group/sg-06e0c2d9cbbd69c0c",
             "description": "Allow tcp/22 from bastion and jenkins security groups",
             "egress": [
               {
@@ -2013,7 +1982,7 @@
                 "to_port": 0
               }
             ],
-            "id": "sg-0daf527e0899905de",
+            "id": "sg-06e0c2d9cbbd69c0c",
             "ingress": [
               {
                 "cidr_blocks": [],
@@ -2023,8 +1992,8 @@
                 "prefix_list_ids": [],
                 "protocol": "tcp",
                 "security_groups": [
-                  "sg-02213e4cbb7be9b90",
-                  "sg-03bcb917bef60bfac"
+                  "sg-09b196095e4ddb7f3",
+                  "sg-0c35f9dc5f12662d1"
                 ],
                 "self": false,
                 "to_port": 22
@@ -2044,13 +2013,13 @@
               "Name": "worker-security-group-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "sg-0daf527e0899905de",
+            "id": "sg-06e0c2d9cbbd69c0c",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
@@ -2075,7 +2044,7 @@
           "index_key": "eu-central-1a",
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:subnet/subnet-0934a79157954b047",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:subnet/subnet-05ba4476cecccfd9b",
             "assign_ipv6_address_on_creation": false,
             "availability_zone": "eu-central-1a",
             "availability_zone_id": "euc1-az2",
@@ -2085,7 +2054,7 @@
             "enable_lni_at_device_index": 0,
             "enable_resource_name_dns_a_record_on_launch": false,
             "enable_resource_name_dns_aaaa_record_on_launch": false,
-            "id": "subnet-0934a79157954b047",
+            "id": "subnet-05ba4476cecccfd9b",
             "ipv6_cidr_block": "",
             "ipv6_cidr_block_association_id": "",
             "ipv6_native": false,
@@ -2104,13 +2073,13 @@
               "Name": "private-subnet-10.0.1.0/24-eu-central-1a-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "subnet-0934a79157954b047",
+            "id": "subnet-05ba4476cecccfd9b",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
@@ -2122,7 +2091,7 @@
           "index_key": "eu-central-1b",
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:subnet/subnet-03f86ac54c8d4f1a5",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:subnet/subnet-088a84ab652460a95",
             "assign_ipv6_address_on_creation": false,
             "availability_zone": "eu-central-1b",
             "availability_zone_id": "euc1-az3",
@@ -2132,7 +2101,7 @@
             "enable_lni_at_device_index": 0,
             "enable_resource_name_dns_a_record_on_launch": false,
             "enable_resource_name_dns_aaaa_record_on_launch": false,
-            "id": "subnet-03f86ac54c8d4f1a5",
+            "id": "subnet-088a84ab652460a95",
             "ipv6_cidr_block": "",
             "ipv6_cidr_block_association_id": "",
             "ipv6_native": false,
@@ -2151,13 +2120,13 @@
               "Name": "private-subnet-10.0.3.0/24-eu-central-1b-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "subnet-03f86ac54c8d4f1a5",
+            "id": "subnet-088a84ab652460a95",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
@@ -2177,7 +2146,7 @@
           "index_key": "eu-central-1a",
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:subnet/subnet-0a95ec050794ca026",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:subnet/subnet-0dc176c6020205a9b",
             "assign_ipv6_address_on_creation": false,
             "availability_zone": "eu-central-1a",
             "availability_zone_id": "euc1-az2",
@@ -2187,7 +2156,7 @@
             "enable_lni_at_device_index": 0,
             "enable_resource_name_dns_a_record_on_launch": false,
             "enable_resource_name_dns_aaaa_record_on_launch": false,
-            "id": "subnet-0a95ec050794ca026",
+            "id": "subnet-0dc176c6020205a9b",
             "ipv6_cidr_block": "",
             "ipv6_cidr_block_association_id": "",
             "ipv6_native": false,
@@ -2206,13 +2175,13 @@
               "Name": "public-subnet-10.0.0.0/24-eu-central-1a-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "subnet-0a95ec050794ca026",
+            "id": "subnet-0dc176c6020205a9b",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
@@ -2224,7 +2193,7 @@
           "index_key": "eu-central-1b",
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:subnet/subnet-0f417af7dc9a0179a",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:subnet/subnet-0b79da1037f9e797a",
             "assign_ipv6_address_on_creation": false,
             "availability_zone": "eu-central-1b",
             "availability_zone_id": "euc1-az3",
@@ -2234,7 +2203,7 @@
             "enable_lni_at_device_index": 0,
             "enable_resource_name_dns_a_record_on_launch": false,
             "enable_resource_name_dns_aaaa_record_on_launch": false,
-            "id": "subnet-0f417af7dc9a0179a",
+            "id": "subnet-0b79da1037f9e797a",
             "ipv6_cidr_block": "",
             "ipv6_cidr_block_association_id": "",
             "ipv6_native": false,
@@ -2253,13 +2222,13 @@
               "Name": "public-subnet-10.0.2.0/24-eu-central-1b-jenkins"
             },
             "timeouts": null,
-            "vpc_id": "vpc-000671e4e7d138759"
+            "vpc_id": "vpc-01a2d68980db1a27c"
           },
           "sensitive_attributes": [],
           "identity_schema_version": 0,
           "identity": {
             "account_id": "730323515716",
-            "id": "subnet-0f417af7dc9a0179a",
+            "id": "subnet-0b79da1037f9e797a",
             "region": "eu-central-1"
           },
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
@@ -2278,17 +2247,17 @@
         {
           "schema_version": 1,
           "attributes": {
-            "arn": "arn:aws:ec2:eu-central-1:730323515716:vpc/vpc-000671e4e7d138759",
+            "arn": "arn:aws:ec2:eu-central-1:730323515716:vpc/vpc-01a2d68980db1a27c",
             "assign_generated_ipv6_cidr_block": false,
             "cidr_block": "10.0.0.0/16",
-            "default_network_acl_id": "acl-0a48fc96aa432da91",
-            "default_route_table_id": "rtb-0749ca0e4eab51a53",
-            "default_security_group_id": "sg-0c3ad8430e9ecea9e",
+            "default_network_acl_id": "acl-057a4e24f35909f25",
+            "default_route_table_id": "rtb-06b05b9322f3dd3be",
+            "default_security_group_id": "sg-02b87a33a2be59f80",
             "dhcp_options_id": "dopt-039f3b904be3116b5",
             "enable_dns_hostnames": true,
             "enable_dns_support": true,
             "enable_network_address_usage_metrics": false,
-            "id": "vpc-000671e4e7d138759",
+            "id": "vpc-01a2d68980db1a27c",
             "instance_tenancy": "default",
             "ipv4_ipam_pool_id": null,
             "ipv4_netmask_length": null,
@@ -2297,7 +2266,7 @@
             "ipv6_cidr_block_network_border_group": "",
             "ipv6_ipam_pool_id": "",
             "ipv6_netmask_length": 0,
-            "main_route_table_id": "rtb-0749ca0e4eab51a53",
+            "main_route_table_id": "rtb-06b05b9322f3dd3be",
             "owner_id": "730323515716",
             "region": "eu-central-1",
             "tags": {

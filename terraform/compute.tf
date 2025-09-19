@@ -84,11 +84,11 @@ resource "aws_instance" "proxy" {
     encrypted             = var.proxy_root_block_device.encrypted
     delete_on_termination = var.proxy_root_block_device.delete_on_termination
   }
-  depends_on = [aws_instance.jenkins]
   tags = {
     Name   = "proxy-${var.vpc_name}"
     Author = var.author
   }
+  depends_on = [aws_instance.jenkins]
 }
 
 resource "aws_security_group" "bastion" {
@@ -272,6 +272,7 @@ resource "aws_instance" "jenkins" {
     Name   = "server-${var.vpc_name}"
     Author = var.author
   }
+  depends_on = [aws_nat_gateway.nat_gateway]
 }
 
 resource "aws_security_group" "worker" {

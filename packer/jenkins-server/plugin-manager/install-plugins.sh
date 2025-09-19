@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PLUGIN_DIR="/var/lib/$JENKINS_USER/plugins"
-mkdir -p "$PLUGIN_DIR"
-
+JENKINS_USER=jenkins
+PLUGIN_DIR="/var/lib/jenkins/plugins"
 REPO="jenkinsci/plugin-installation-manager-tool"
 DOWNLOAD_DIR="./downloads"
+
+mkdir -p "$PLUGIN_DIR"
 mkdir -p "$DOWNLOAD_DIR"
 
 # === get latest release tag ===

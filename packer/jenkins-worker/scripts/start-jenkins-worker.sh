@@ -17,7 +17,7 @@ import hudson.plugins.sshslaves.verifiers.NonVerifyingKeyVerificationStrategy
 
 def launcher = new SSHLauncher('$WORKER_IP', 22, 'jenkins')
 launcher.setSshHostKeyVerificationStrategy(new NonVerifyingKeyVerificationStrategy())
-Jenkins.getInstance().addNode(new DumbSlave('$WORKER_NAME', 'EC2 worker node $WORKER_NAME', '$JENKINS_HOME', '2', Mode.NORMAL, 'ec2-worker', launcher, RetentionStrategy.INSTANCE))
+Jenkins.getInstance().addNode(new DumbSlave('$WORKER_NAME', 'EC2 worker node $WORKER_NAME', '/var/lib/jenkins', '2', Mode.NORMAL, 'ec2-worker', launcher, RetentionStrategy.INSTANCE))
 Jenkins.getInstance().save()
 " $JENKINS_URL/script
 
