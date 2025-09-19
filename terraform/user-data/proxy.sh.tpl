@@ -3,8 +3,8 @@ set -e
 
 JENKINS_URL="http://${jenkins_private_ip}:8080"
 
-dnf upgrade
-dnf -y install nginx
+dnf upgrade -y
+dnf install nginx -y
 
 rm -f /etc/nginx/conf.d/default.conf
 

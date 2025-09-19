@@ -1,72 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-JENKINS_USER=${JENKINS_USER:-jenkins}
+source /tmp/shared-scripts/functions.sh
+rm -rf /tmp/shared-scripts
 
-check_first_line() {
-    local file="$1"
-    local string="$2"
-
-    local firstline
-    firstline=$(head -n 1 "$file")
-
-    if [[ "$firstline" == "$string" ]]; then
-        return 0 
-    else
-        return 1   
-    fi
-}
-
-check_last_non_empty_line() {
-    local file="$1"
-    local string="$2"
-
-    local lastline
-    lastline=$(awk 'NF {line=$0} END {print line}' "$file")
-
-    if [[ "$lastline" == "$string" ]]; then
-        return 0   
-    else
-        return 1  
-    fi
-}
-
-check_private_key_format() {
-    local file="$1"
-    local first_line="-----BEGIN OPENSSH PRIVATE KEY-----"
-    local last_line="-----END OPENSSH PRIVATE KEY-----"
-
-    if check_first_line "$file" "$first_line" && check_last_non_empty_line "$file" "$last_line"; then
-        return 0 
-    else
-        return 1  
-    fi
-}
-
-check_file_perms() {
-    local file="$1"
-    local expected="$2"
-    local perms
-
-    perms=$(stat -c '%a' "$file" 2>/dev/null) || return 1
-
-    if [[ "$perms" == "$expected" ]]; then
-        return 0  
-    else
-        return 1 
-    fi
-}
-
-check_environment() {
-  local file="$1"
-  if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$file"; then
+check_override_conf() {
+  local FILE="$1"
+  if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$FILE"; then
     return 1
   fi
-  if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$file"; then
+  if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$FILE"; then
+    return 1
+  fi
+  if ! grep -qE '^Environment="JAVA_OPTS=' "$FILE"; then
     return 1
   fi
   return 0
 }
+
+JENKINS_USER=${JENKINS_USER:-jenkins}
 
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
 OVERRIDE_CONF="/etc/systemd/system/${JENKINS_USER}.service.d/override.conf"
@@ -74,7 +26,7 @@ OVERRIDE_CONF="/etc/systemd/system/${JENKINS_USER}.service.d/override.conf"
 errors=0
 
 # === check environment configuration provided by override configuration ===
-if ! check_environment "$OVERRIDE_CONF"; then
+if ! check_override_conf "$OVERRIDE_CONF"; then
   echo "ERROR: Environment configuration missing"
   ((errors++))
 fi
@@ -122,12 +74,12 @@ if [ ! -d "$JENKINS_HOME/init.groovy.d" ]; then
 fi 
 
 # === check setup-wizard state ===
-jenkins_version=$(rpm -qa | grep jenkins | cut -d '-' -f2)
-if ! check_last_non_empty_line "$JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion" "$jenkins_version"; then
+JENKINS_VERSION=$(rpm -qa | grep jenkins | cut -d '-' -f2)
+if ! check_last_non_empty_line "$JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion" "$JENKINS_VERSION"; then
   echo "ERROR: Unexpected file contents $JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion"
   ((errors++))
 fi
-if ! check_last_non_empty_line "$JENKINS_HOME/jenkins.install.UpgradeWizard.state" "$jenkins_version"; then
+if ! check_last_non_empty_line "$JENKINS_HOME/jenkins.install.UpgradeWizard.state" "$JENKINS_VERSION"; then
   echo "ERROR: Unexpected file contents $JENKINS_HOME/jenkins.install.UpgradeWizard.state"
   ((errors++))
 fi

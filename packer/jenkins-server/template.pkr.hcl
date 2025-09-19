@@ -85,6 +85,11 @@ build {
     execute_command = "sudo JENKINS_ADMIN_ID=${local.jenkins_admin_id} JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
   }
 
+  provisioner "file" {
+    source      = "${path.root}/../shared-scripts"
+    destination = "/tmp/"
+  }
+
   provisioner "shell" {
     script          = "${path.root}/check.sh"
     execute_command = "sudo JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"

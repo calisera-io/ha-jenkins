@@ -23,6 +23,7 @@ cat <<EOF > "$JENKINS_OVERRIDE_CONF"
 [Service]
 Environment="JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID}"
 Environment="JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD}"
+Environment="JAVA_OPTS=-Djava.net.preferIPv4Stack=true -Dnetworkaddress.cache.ttl=60 -Dhudson.model.UpdateCenter.connectionCheckTimeoutMillis=30000"
 EOF
 
 systemctl daemon-reload
@@ -31,12 +32,12 @@ systemctl enable jenkins 2>&1
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
 
 # === install private key ===
-mkdir $JENKINS_HOME/.ssh
-touch $JENKINS_HOME/.ssh/known_hosts
-chmod 700 $JENKINS_HOME/.ssh
-mv /tmp/credentials/jenkins_id_rsa $JENKINS_HOME/.ssh/jenkins_id_rsa
-chmod 600 $JENKINS_HOME/.ssh/jenkins_id_rsa
-chown -R "$JENKINS_USER": $JENKINS_HOME/.ssh
+mkdir "$JENKINS_HOME/.ssh"
+touch "$JENKINS_HOME/.ssh/known_hosts"
+chmod 700 "$JENKINS_HOME/.ssh"
+mv /tmp/credentials/jenkins_id_rsa "$JENKINS_HOME/.ssh/jenkins_id_rsa"
+chmod 600 "$JENKINS_HOME/.ssh/jenkins_id_rsa"
+chown -R "${JENKINS_USER}:" "$JENKINS_HOME/.ssh"
 rm -rf /tmp/credentials
 
 
@@ -49,14 +50,16 @@ popd > /dev/null
 rm -rf /tmp/plugin-manager
 
 # === install groovy scripts ===
-mkdir $JENKINS_HOME/init.groovy.d
-mv /tmp/scripts/*.groovy $JENKINS_HOME/init.groovy.d/
-chown -R "$JENKINS_USER": $JENKINS_HOME/init.groovy.d
+mkdir "$JENKINS_HOME/init.groovy.d"
+mv /tmp/scripts/*.groovy "$JENKINS_HOME/init.groovy.d/"
+chown -R "${JENKINS_USER}:" "$JENKINS_HOME/init.groovy.d"
 rmdir /tmp/scripts
 
 # === disable setup-wizard ===
-jenkins_version=$(rpm -qa | grep jenkins | cut -d '-' -f2)
-echo "$jenkins_version" > $JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion
-echo "$jenkins_version" > $JENKINS_HOME/jenkins.install.UpgradeWizard.state
-chown -R "$JENKINS_USER": $JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion $JENKINS_HOME/jenkins.install.UpgradeWizard.state
+JENKINS_VERSION=$(rpm -qa | grep jenkins | cut -d '-' -f2)
+echo "$JENKINS_VERSION" > "$JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion"
+echo "$JENKINS_VERSION" > "$JENKINS_HOME/jenkins.install.UpgradeWizard.state"
+chown -R "${JENKINS_USER}:" \
+   "$JENKINS_HOME/jenkins.install.InstallUtil.lastExecVersion" \
+   "$JENKINS_HOME/jenkins.install.UpgradeWizard.state"
 

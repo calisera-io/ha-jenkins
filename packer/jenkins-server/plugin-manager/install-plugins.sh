@@ -51,13 +51,13 @@ fi
 popd > /dev/null
 
 echo "Installing plugins ..."
-java -jar $OUTPUT \
-  --plugin-download-directory $PLUGIN_DIR \
+java -jar "$OUTPUT" \
+  --plugin-download-directory "$PLUGIN_DIR" \
   --plugin-file ./plugins.txt \
   --verbose \
   2>&1
 
 echo "Setting permissions ..."
-chown -R "${JENKINS_USER}:$JENKINS_USER" $PLUGIN_DIR
+chown -R "${JENKINS_USER}:" "$PLUGIN_DIR"
 
 echo "Done."

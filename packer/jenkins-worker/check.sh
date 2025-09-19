@@ -1,56 +1,24 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-check_first_line_starts_with() {
-    local file="$1"
-    local string="$2"
+source /tmp/shared-scripts/functions.sh
+rm -rf /tmp/shared-scripts
 
-    local first_line
-    first_line=$(head -n 1 "$file")
-
-    if [[ "$first_line" == $string* ]]; then
-        return 0 
-    else
-        return 1   
-    fi
-}
-
-check_authorized_keys_format() {
-    local file="$1"
-    local string="ssh-rsa"
-
-    if check_first_line_starts_with "$file" "$string"; then
-        return 0 
-    else
-        return 1  
-    fi
-}
-
-check_file_perms() {
-    local file="$1"
-    local expected="$2"
-    local perms
-
-    perms=$(stat -c '%a' "$file" 2>/dev/null) || return 1
-
-    if [[ "$perms" == "$expected" ]]; then
-        return 0  
-    else
-        return 1 
-    fi
-}
-
-check_environment() {
-  local file="$1"
-  if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$file"; then
+check_override_conf() {
+  local FILE="$1"
+  if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$FILE"; then
     return 1
   fi
-  if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$file"; then
+  if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$FILE"; then
+    return 1
+  fi
+  if ! grep -qE '^Environment="JENKINS_HOME=' "$FILE"; then
     return 1
   fi
   return 0
 }
+
+JENKINS_USER=${JENKINS_USER:-jenkins}
 
 JENKINS_HOME="/var/lib/$JENKINS_USER" 
 OVERRIDE_CONF="/etc/systemd/system/jenkins-worker.service.d/override.conf"
@@ -58,7 +26,7 @@ OVERRIDE_CONF="/etc/systemd/system/jenkins-worker.service.d/override.conf"
 errors=0
 
 # === check environment configuration provided by override configuration ===
-if ! check_environment "$OVERRIDE_CONF"; then
+if ! check_override_conf "$OVERRIDE_CONF"; then
   echo "ERROR: Environment configuration missing"
   ((errors++))
 fi
