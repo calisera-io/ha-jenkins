@@ -1,0 +1,3 @@
+shared_config_file      = "/Users/hogh/.aws/config"
+shared_credentials_file = "/Users/hogh/.aws/credentials"
+public_key_name         = "jenkins"
