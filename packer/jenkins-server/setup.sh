@@ -26,23 +26,10 @@ Wants=network-online.target
 [Service]
 Environment="JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID}"
 Environment="JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD}"
-Environment="JAVA_OPTS=-Xms512m -Xmx1024m -Djenkins.install.runSetupWizard=false -Djava.net.preferIPv4Stack=true"
-ExecStartPre=/bin/bash -c '
-max=50
-count=0
-until curl -s -L https://updates.jenkins.io >/dev/null; do
-    count=\$((count+1))
-    if [ \$count -ge \$max ]; then
-        echo "Network not reachable after retries, continuing anyway"
-        break
-    fi
-    sleep 0.2
-done
-'
+Environment="JAVA_OPTS=-Xms512m -Xmx1024m -Djenkins.install.runSetupWizard=false"
 EOF
 
 systemctl daemon-reload
-
 systemctl enable jenkins 2>&1
 
 # === install private key ===
@@ -67,11 +54,3 @@ mkdir "${JENKINS_HOME}/init.groovy.d"
 mv /tmp/scripts/*.groovy "${JENKINS_HOME}/init.groovy.d/"
 chown -R "${JENKINS_USER}:" "${JENKINS_HOME}/init.groovy.d"
 rmdir /tmp/scripts
-
-# # === disable setup-wizard ===
-# JENKINS_VERSION=$(rpm -qa | grep jenkins | cut -d '-' -f2)
-# echo "${JENKINS_VERSION}" > "${JENKINS_HOME}/jenkins.install.InstallUtil.lastExecVersion"
-# echo "${JENKINS_VERSION}" > "${JENKINS_HOME}/jenkins.install.UpgradeWizard.state"
-# chown -R "${JENKINS_USER}:" \
-#    "${JENKINS_HOME}/jenkins.install.InstallUtil.lastExecVersion" \
-#    "${JENKINS_HOME}/jenkins.install.UpgradeWizard.state"

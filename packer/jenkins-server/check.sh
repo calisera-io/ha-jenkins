@@ -11,11 +11,11 @@ OVERRIDE_CONF="/etc/systemd/system/${JENKINS_USER}.service.d/override.conf"
 
 ERRORS=0
 
-# # === check environment configuration provided by override configuration ===
-# if ! check_override_conf "${OVERRIDE_CONF}"; then
-#   echo "ERROR: Environment configuration missing"
-#   ((ERRORS++))
-# fi
+# === check environment configuration provided by override configuration ===
+if ! check_override_conf "${OVERRIDE_CONF}"; then
+  echo "ERROR: Environment configuration missing"
+  ((ERRORS++))
+fi
 
 # === check Jenkins home directory ===
 if [ ! -d "${JENKINS_HOME}" ]; then
@@ -58,17 +58,6 @@ if [ ! -d "${JENKINS_HOME}/init.groovy.d" ]; then
   echo "ERROR: Groovy init scripts directory not found at ${JENKINS_HOME}/init.groovy.d"
   ((ERRORS++))
 fi 
-
-# # === check setup-wizard state ===
-# JENKINS_VERSION=$(rpm -qa | grep jenkins | cut -d '-' -f2)
-# if ! check_last_non_empty_line "${JENKINS_HOME}/jenkins.install.InstallUtil.lastExecVersion" "${JENKINS_VERSION}"; then
-#   echo "ERROR: Unexpected file contents ${JENKINS_HOME}/jenkins.install.InstallUtil.lastExecVersion"
-#   ((ERRORS++))
-# fi
-# if ! check_last_non_empty_line "${JENKINS_HOME}/jenkins.install.UpgradeWizard.state" "${JENKINS_VERSION}"; then
-#   echo "ERROR: Unexpected file contents ${JENKINS_HOME}/jenkins.install.UpgradeWizard.state"
-#   ((ERRORS++))
-# fi
 
 if [ $ERRORS -gt 0 ]; then
   echo "Found $ERRORS error(s)"

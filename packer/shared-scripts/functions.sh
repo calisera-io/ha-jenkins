@@ -76,12 +76,23 @@ check_file_perms() {
 }
 
 check_override_conf() {
-  local FILE="$1"
-  if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$FILE"; then
-    return 1
-  fi
-  if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$FILE"; then
-    return 1
-  fi
-  return 0
+    local FILE="$1"
+    if ! grep -q After=network-online.target < <(grep -A2 'Unit' $FILE); then
+        return 1
+    fi
+    if ! grep -q Wants=network-online.target < <(grep -A2 'Unit' $FILE); then
+        return 1
+    fi
+    if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$FILE"; then
+        return 1
+    fi
+    if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$FILE"; then
+        return 1
+    fi
+    if  [ $(wc -l < <(grep -A3 'Service' "$FILE")) -gt 3 ]; then
+        if ! grep -qE '^Environment="JAVA_OPTS=' "$FILE"; then
+            return 1
+        fi
+    fi
+    return 0
 }
