@@ -22,5 +22,5 @@ server {
 }
 EOF
 
-sudo systemctl enable --now nginx
+systemctl enable --now nginx
 

@@ -7,11 +7,6 @@ packer {
   }
 }
 
-locals {
-  jenkins_admin_id       = vault("secret/data/jenkins", "jenkins_admin_id")
-  jenkins_admin_password = vault("secret/data/jenkins", "jenkins_admin_password")
-}
-
 variable "shared_credentials_file" {
   type    = string
   default = ""
@@ -77,7 +72,7 @@ build {
 
   provisioner "shell" {
     script          = "${path.root}/setup.sh"
-    execute_command = "sudo JENKINS_ADMIN_ID=${local.jenkins_admin_id} JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
+    execute_command = "sudo JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
   }
 
   provisioner "file" {

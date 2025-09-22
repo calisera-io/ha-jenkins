@@ -2,8 +2,6 @@
 set -euo pipefail
 
 JENKINS_USER=${JENKINS_USER:-jenkins}
-JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID:-admin}
-JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD:-admin}
 
 # === install dependencies ===
 dnf install -y docker
@@ -54,8 +52,7 @@ cat <<EOF > "$OVERRIDE_CONF"
 After=network-online.target
 Wants=network-online.target
 [Service]
-Environment="JENKINS_ADMIN_ID=${JENKINS_ADMIN_ID}"
-Environment="JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD}"
+ExecStartPre=${JENKINS_HOME}/wait-for-jenkins.sh
 EOF
 
 # === install scripts ===

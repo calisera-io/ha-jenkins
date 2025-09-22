@@ -1,3 +1,6 @@
+### Wireguard ###
+wireguard/
+
 ### Packer ###
 # Cache objects
 packer_cache/

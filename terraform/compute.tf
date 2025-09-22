@@ -33,55 +33,55 @@ locals {
   effective_ip = var.my_ip != "" ? var.my_ip : trimspace(data.http.my_ip.response_body)
 }
 
-resource "aws_security_group" "proxy" {
-  name        = "proxy-security-group-${var.vpc_name}"
-  description = "Allow tcp/80 from my IP"
-  vpc_id      = aws_vpc.custom.id
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["${local.effective_ip}/32"]
-  }
-  tags = {
-    Name   = "proxy-security-group-${var.vpc_name}"
-    Author = var.author
-  }
-}
+# resource "aws_security_group" "proxy" {
+#   name        = "proxy-security-group-${var.vpc_name}"
+#   description = "Allow tcp/80 from my IP"
+#   vpc_id      = aws_vpc.custom.id
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+#   ingress {
+#     from_port   = 80
+#     to_port     = 80
+#     protocol    = "tcp"
+#     cidr_blocks = ["${local.effective_ip}/32"]
+#   }
+#   tags = {
+#     Name   = "proxy-security-group-${var.vpc_name}"
+#     Author = var.author
+#   }
+# }
 
-data "template_file" "user_data_proxy" {
-  template = file("user-data/proxy.sh.tpl")
-  vars = {
-    jenkins_private_ip = aws_instance.jenkins.private_ip
-  }
-}
+# data "template_file" "user_data_proxy" {
+#   template = file("user-data/proxy.sh.tpl")
+#   vars = {
+#     jenkins_private_ip = aws_instance.jenkins.private_ip
+#   }
+# }
 
-resource "aws_instance" "proxy" {
-  ami                         = data.aws_ami.proxy.id
-  instance_type               = var.proxy_instance_type
-  vpc_security_group_ids      = [aws_security_group.proxy.id]
-  user_data_base64            = base64encode(data.template_file.user_data_proxy.rendered)
-  subnet_id                   = values(aws_subnet.public_subnet)[0].id
-  associate_public_ip_address = true
-  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
-  root_block_device {
-    volume_type           = var.proxy_root_block_device.volume_type
-    volume_size           = var.proxy_root_block_device.volume_size
-    encrypted             = var.proxy_root_block_device.encrypted
-    delete_on_termination = var.proxy_root_block_device.delete_on_termination
-  }
-  tags = {
-    Name   = "proxy-${var.vpc_name}"
-    Author = var.author
-  }
-  depends_on = [aws_instance.jenkins]
-}
+# resource "aws_instance" "proxy" {
+#   ami                         = data.aws_ami.proxy.id
+#   instance_type               = var.proxy_instance_type
+#   vpc_security_group_ids      = [aws_security_group.proxy.id]
+#   user_data_base64            = base64encode(data.template_file.user_data_proxy.rendered)
+#   subnet_id                   = values(aws_subnet.public_subnet)[0].id
+#   associate_public_ip_address = true
+#   iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+#   root_block_device {
+#     volume_type           = var.proxy_root_block_device.volume_type
+#     volume_size           = var.proxy_root_block_device.volume_size
+#     encrypted             = var.proxy_root_block_device.encrypted
+#     delete_on_termination = var.proxy_root_block_device.delete_on_termination
+#   }
+#   tags = {
+#     Name   = "proxy-${var.vpc_name}"
+#     Author = var.author
+#   }
+#   depends_on = [aws_instance.jenkins]
+# }
 
 # resource "aws_security_group" "lb" {
 #   name        = "lb-security-group-${var.vpc_name}"
@@ -176,15 +176,26 @@ resource "aws_security_group" "jenkins" {
   description = "Allow tcp/8080 from load balancer and tcp/22 from bastion"
   vpc_id      = aws_vpc.custom.id
   ingress {
-    from_port       = "8080"
-    to_port         = "8080"
-    protocol        = "tcp"
-    cidr_blocks     = values(aws_subnet.private_subnet)[*].cidr_block
-    security_groups = [aws_security_group.proxy.id]
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 51820
+    to_port     = 51820
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = values(aws_subnet.private_subnet)[*].cidr_block
   }
   egress {
-    from_port   = "0"
-    to_port     = "0"
+    from_port   = 0
+    to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -201,6 +212,7 @@ resource "aws_instance" "jenkins" {
   subnet_id                   = values(aws_subnet.private_subnet)[0].id
   associate_public_ip_address = false
   iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+  user_data_base64            = base64encode(file("user-data/jenkins.sh"))
   root_block_device {
     volume_type           = var.jenkins_root_block_device.volume_type
     volume_size           = var.jenkins_root_block_device.volume_size

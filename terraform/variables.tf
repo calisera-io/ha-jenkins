@@ -75,7 +75,7 @@ variable "proxy_root_block_device" {
 variable "jenkins_instance_type" {
   type        = string
   description = "Jenlins instance type"
-  default     = "t3.small"
+  default     = "t3.micro"
 }
 
 variable "jenkins_root_block_device" {
@@ -101,7 +101,7 @@ variable "jenkins_root_block_device" {
 variable "worker_instance_type" {
   type        = string
   description = "Worker instance type"
-  default     = "t3.small"
+  default     = "t3.micro"
 }
 
 variable "worker_root_block_device" {

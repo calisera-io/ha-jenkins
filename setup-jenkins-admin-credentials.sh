@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-if ! vault status >/dev/null 2>&1; then
-    echo "Error: Vault server is not running."
-    exit 1
-fi
-
-if ! vault token lookup >/dev/null 2>&1; then
-    echo "Error: You are not logged into Vault."
-    exit 1
-fi
-
 read -p "Enter Jenkins admin username: " JENKINS_ADMIN_ID
 echo
 read -s -p "Enter Jenkins admin password: " JENKINS_ADMIN_PASSWORD
@@ -23,6 +13,14 @@ if [ "$JENKINS_ADMIN_PASSWORD" != "$JENKINS_ADMIN_PASSWORD_CONFIRMATION" ]; then
     exit 1
 fi
 
-vault kv put secret/jenkins \
-    jenkins_admin_id="$JENKINS_ADMIN_ID" \
-    jenkins_admin_password="$JENKINS_ADMIN_PASSWORD" > /dev/null 2>&1
+aws ssm put-parameter \
+  --name "/jenkins/dev/jenkins_admin_id" \
+  --value "$JENKINS_ADMIN_ID" \
+  --type "SecureString" \
+  --overwrite
+
+aws ssm put-parameter \
+  --name "/jenkins/dev/jenkins_admin_password" \
+  --value "$JENKINS_ADMIN_PASSWORD" \
+  --type "SecureString" \
+  --overwrite

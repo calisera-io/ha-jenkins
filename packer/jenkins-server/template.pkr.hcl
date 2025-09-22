@@ -7,11 +7,6 @@ packer {
   }
 }
 
-locals {
-  jenkins_admin_id       = vault("secret/data/jenkins", "jenkins_admin_id")
-  jenkins_admin_password = vault("secret/data/jenkins", "jenkins_admin_password")
-}
-
 variable "shared_credentials_file" {
   type    = string
   default = ""
@@ -30,11 +25,6 @@ variable "region" {
 variable "instance_type" {
   type    = string
   default = "t3.micro"
-}
-
-variable "jenkins_user" {
-  type    = string
-  default = "jenkins"
 }
 
 source "amazon-ebs" "jenkins" {
@@ -76,13 +66,18 @@ build {
   }
 
   provisioner "file" {
+    source      = "${path.root}/groovy"
+    destination = "/tmp/"
+  }
+  
+  provisioner "file" {
     source      = "${path.root}/scripts"
     destination = "/tmp/"
   }
 
   provisioner "shell" {
     script          = "${path.root}/setup.sh"
-    execute_command = "sudo JENKINS_ADMIN_ID=${local.jenkins_admin_id} JENKINS_ADMIN_PASSWORD=${local.jenkins_admin_password} bash '{{ .Path }}'"
+    execute_command = "sudo bash '{{ .Path }}'"
   }
 
   provisioner "file" {
@@ -92,7 +87,7 @@ build {
 
   provisioner "shell" {
     script          = "${path.root}/check.sh"
-    execute_command = "sudo JENKINS_USER='${var.jenkins_user}' bash '{{ .Path }}'"
+    execute_command = "sudo bash '{{ .Path }}'"
   }
 
 }

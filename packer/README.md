@@ -4,21 +4,22 @@
 
 ### Jenkins admin credentials
 
-Start Hashicorp vault server in development mode:
+Set `jenkins_admin_id` and `jenkins_admin_password` credentials in AWS Systems Manager parameter store:
 ```bash
-pkill vault
-vault server -dev
-```
-Set `jenkins_admin_id` and `jenkins_admin_password` credentials (in new terminal window):
-```bash
-export VAULT_ADDR='http://127.0.0.1:8200'
-export VAULT_TOKEN=$(vault print token)
 ./setup-jenkins-admin-credentials.sh
 ```
 Verify credentials for debugging:
 ```bash
-vault kv get -field=jenkins_admin_id secret/jenkins
-vault kv get -field=jenkins_admin_password secret/jenkins
+aws ssm get-parameter \
+  --name "/jenkins/dev/jenkins_admin_id" \
+  --with-decryption \
+  --query Parameter.Value \
+  --output text
+aws ssm get-parameter \
+  --name "/jenkins/dev/jenkins_admin_password" \
+  --with-decryption \
+  --query Parameter.Value \
+  --output text
 ```
 
 ### Jenkins public/private OpenSSH key pair

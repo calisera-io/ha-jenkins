@@ -83,12 +83,6 @@ check_override_conf() {
     if ! grep -q Wants=network-online.target < <(grep -A2 'Unit' $FILE); then
         return 1
     fi
-    if ! grep -qE '^Environment="JENKINS_ADMIN_ID=' "$FILE"; then
-        return 1
-    fi
-    if ! grep -qE '^Environment="JENKINS_ADMIN_PASSWORD=' "$FILE"; then
-        return 1
-    fi
     if  [ $(wc -l < <(grep -A3 'Service' "$FILE")) -gt 3 ]; then
         if ! grep -qE '^Environment="JAVA_OPTS=' "$FILE"; then
             return 1
