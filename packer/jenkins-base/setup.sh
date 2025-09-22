@@ -8,10 +8,6 @@ mkswap /swapfile
 swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
-# === configure /tmp with larger size ===
-echo 'tmpfs /tmp tmpfs defaults,size=1024M 0 0' >> /etc/fstab
-mount -o remount /tmp
-
 # === upgrade ===
 dnf upgrade --releasever=2023.8.20250915 -y
 

@@ -17,7 +17,7 @@ variable "profile" {
 variable "region" {
   type        = string
   description = "AWS region"
-  default     = "eu-central-1"
+  default     = "us-east-1"
 }
 
 variable "author" {
@@ -41,41 +41,13 @@ variable "cidr_block" {
 variable "availability_zones" {
   type        = list(string)
   description = "List of Availability Zones"
-  default     = ["eu-central-1a", "eu-central-1b"]
-}
-
-variable "public_key_name" {
-  type        = string
-  description = "SSH public key name"
-  default     = ""
+  default     = ["us-east-1a"]
 }
 
 variable "my_ip" {
   type        = string
   description = "My public IPv4 address"
   default     = ""
-}
-
-variable "bastion_instance_type" {
-  type        = string
-  description = "Bastion instance type"
-  default     = "t3.micro"
-}
-
-variable "bastion_root_block_device" {
-  description = "Bastion root block device configuration"
-  type = object({
-    volume_type           = string
-    volume_size           = number
-    encrypted             = bool
-    delete_on_termination = bool
-  })
-  default = {
-    volume_type           = "gp3"
-    volume_size           = 30
-    encrypted             = true
-    delete_on_termination = true
-  }
 }
 
 variable "proxy_instance_type" {
