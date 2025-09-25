@@ -15,6 +15,8 @@ credentials
 credentials-binding
 dark-theme
 display-url-api
+docker-commons
+docker-workflow
 durable-task
 echarts-api
 eddsa-api

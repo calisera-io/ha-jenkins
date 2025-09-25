@@ -16,6 +16,31 @@ dnf install -y \
 dnf clean all
 rm -rf /var/cache/dnf/*
 
+cat <<EOF > /usr/local/bin/ping-loop.sh
+#!/usr/bin/env bash
+set -euo pipefail
+
+while true; do
+    ping -c 1 -W 1 ${JENKINS_VPN_IP} || true
+    sleep 15
+done
+EOF
+chmod u+x /usr/local/bin/ping-loop.sh
+
+cat <<EOF > /etc/systemd/system/ping-loop.service
+[Unit]
+Description=Ping fixed IP every 15 seconds
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/ping-loop.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 rm -f /etc/nginx/conf.d/default.conf
 
 cat <<EOF > /etc/nginx/conf.d/reverse-proxy.conf
