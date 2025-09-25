@@ -1,7 +1,13 @@
 import jenkins.model.*
 import jenkins.branch.*
 import jenkins.plugins.git.*
+import jenkins.plugins.git.traits.*
 import org.jenkinsci.plugins.workflow.multibranch.*
+import jenkins.scm.api.*
+import com.cloudbees.plugins.credentials.*
+import com.cloudbees.plugins.credentials.domains.*
+import com.cloudbees.plugins.credentials.impl.*
+import com.cloudbees.plugins.credentials.CredentialsScope
 
 def maxTries = 60
 def sleepTime = 1000
@@ -9,7 +15,7 @@ def ready = false
 
 for (int i = 0; i < maxTries; i++) {
     try {
-        if (Jenkins.instance.getExtensionList(jenkins.scm.api.SCMSourceDescriptor.class).size() > 0) {
+        if (Jenkins.instance.getExtensionList(SCMSourceDescriptor.class).size() > 0) {
             ready = true
             break
         }
@@ -24,7 +30,7 @@ if (!ready) {
     return
 }
 
-def jobName = "Calisera-Blog-Pipeline"
+def jobName = "Calisera Blog Deployment Pipeline"
 def githubUrl = "https://github.com/calisera-io/calisera-project-blog.git"
 def credentialsId = "github-token"
 
@@ -45,7 +51,9 @@ if (jenkins.getItem(jobName)) {
 def job = new WorkflowMultiBranchProject(jenkins, jobName)
 def gitSource = new GitSCMSource(githubUrl)
 gitSource.setCredentialsId(credentialsId)
-
+gitSource.traits = [
+    new BranchDiscoveryTrait()
+]
 job.sourcesList.add(new BranchSource(gitSource))
 jenkins.add(job, jobName)
 
