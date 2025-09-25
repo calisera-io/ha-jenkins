@@ -211,7 +211,7 @@ resource "aws_instance" "jenkins" {
   vpc_security_group_ids      = [aws_security_group.jenkins.id]
   subnet_id                   = values(aws_subnet.private_subnet)[0].id
   associate_public_ip_address = false
-  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
+  iam_instance_profile        = aws_iam_instance_profile.jenkins_profile.name
   user_data_base64            = base64encode(file("user-data/jenkins.sh"))
   root_block_device {
     volume_type           = var.jenkins_root_block_device.volume_type
@@ -267,7 +267,7 @@ resource "aws_launch_template" "worker" {
   instance_type = var.worker_instance_type
   user_data     = base64encode(data.template_file.user_data_worker.rendered)
   iam_instance_profile {
-    name = aws_iam_instance_profile.ec2_instance_profile.name
+    name = aws_iam_instance_profile.worker_profile.name
   }
   network_interfaces {
     associate_public_ip_address = false
