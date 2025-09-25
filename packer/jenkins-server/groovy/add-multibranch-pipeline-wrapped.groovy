@@ -1,49 +1,52 @@
 import jenkins.model.*
-import jenkins.install.*
-import hudson.init.*
+import jenkins.branch.*
+import jenkins.plugins.git.*
+import org.jenkinsci.plugins.workflow.multibranch.*
 
-Jenkins.instance.getInitLevel().compareTo(InitMilestone.COMPLETED) >= 0 ? createPipeline() : Jenkins.instance.addListener(new InitReactorListener() {
-    @Override
-    void onAttained(InitMilestone milestone) {
-        if (milestone == InitMilestone.COMPLETED) {
-            createPipeline()
+def maxTries = 60
+def sleepTime = 1000
+def ready = false
+
+for (int i = 0; i < maxTries; i++) {
+    try {
+        if (Jenkins.instance.getExtensionList(jenkins.scm.api.SCMSourceDescriptor.class).size() > 0) {
+            ready = true
+            break
         }
-    }
-})
-
-def createPipeline() {
-    import com.cloudbees.plugins.credentials.*
-    import com.cloudbees.plugins.credentials.domains.*
-    import com.cloudbees.plugins.credentials.impl.*
-    import com.cloudbees.plugins.credentials.CredentialsScope
-    import com.cloudbees.plugins.credentials.common.*
-    import jenkins.branch.*
-    import jenkins.plugins.git.*
-    import jenkins.plugins.git.traits.*
-    import org.jenkinsci.plugins.workflow.multibranch.*
-    import jenkins.scm.api.*
-    import jenkins.scm.impl.trait.*
-
-    def jobName = "Calisera-Blog-Multibranch-Pipeline"
-    def githubUrl = "https://github.com/calisera-io/calisera-project-blog.git"
-    def credentialsId = "github-token"  
-
-    def jenkins = Jenkins.instance
-
-    def existingJob = jenkins.getItem(jobName)
-    if (existingJob) {
-        println "Job '${jobName}' already exists. Exiting."
-    } else {
-        def job = new WorkflowMultiBranchProject(jenkins, jobName)
-        def gitSource = new GitSCMSource(null, githubUrl, credentialsId, "*", "", false)
-
-        gitSource.traits = [
-            new BranchDiscoveryTrait()
-        ]
-
-        job.sourcesList.add(new BranchSource(gitSource))
-        job.save()
-
-        println "Multibranch Pipeline '${jobName}' created successfully."
+    } catch (e) {
+        println "Waiting for SCM plugins to load..."
+        sleep(sleepTime)
     }
 }
+
+if (!ready) {
+    println "SCM plugins not ready, skipping pipeline creation"
+    return
+}
+
+def jobName = "Calisera-Blog-Pipeline"
+def githubUrl = "https://github.com/calisera-io/calisera-project-blog.git"
+def credentialsId = "github-token"
+
+def jenkins = Jenkins.instance
+
+def credentialsStore = jenkins.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+def credential = credentialsStore.getCredentials(Domain.global()).find { it.id == credentialsId }
+if (!credential) {
+    println "Credential '${credentialsId}' not found, skipping pipeline creation"
+    return
+}
+
+if (jenkins.getItem(jobName)) {
+    println "Job '${jobName}' already exists."
+    return
+}
+
+def job = new WorkflowMultiBranchProject(jenkins, jobName)
+def gitSource = new GitSCMSource(githubUrl)
+gitSource.setCredentialsId(credentialsId)
+
+job.sourcesList.add(new BranchSource(gitSource))
+jenkins.add(job, jobName)
+
+println "Multibranch Pipeline '${jobName}' created successfully."

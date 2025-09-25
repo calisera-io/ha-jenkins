@@ -3,7 +3,8 @@ set -euo pipefail
 
 JENKINS_USER=jenkins
 JENKINS_HOME="/var/lib/${JENKINS_USER}" 
-JENKINS_VPN_IP="10.202.148.222"
+VPN_IP_JENKINS="10.202.148.222"
+VPN_IP_GATEWAY="10.202.148.1"
 
 # === install dependencies ===
 curl -s -o /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
@@ -21,7 +22,7 @@ cat <<EOF > /usr/local/bin/ping-loop.sh
 set -euo pipefail
 
 while true; do
-    ping -c 1 -W 1 ${JENKINS_VPN_IP} || true
+    ping -c 1 -W 1 ${VPN_IP_GATEWAY} || true
     sleep 15
 done
 EOF
@@ -29,7 +30,7 @@ chmod u+x /usr/local/bin/ping-loop.sh
 
 cat <<EOF > /etc/systemd/system/ping-loop.service
 [Unit]
-Description=Ping fixed IP every 15 seconds
+Description=Ping VPN gateway every 15 seconds
 After=network-online.target
 Wants=network-online.target
 
@@ -45,7 +46,7 @@ rm -f /etc/nginx/conf.d/default.conf
 
 cat <<EOF > /etc/nginx/conf.d/reverse-proxy.conf
 server {
-    listen ${JENKINS_VPN_IP}:80;
+    listen ${VPN_IP_JENKINS}:80;
 
     location / {
         proxy_pass http://localhost:8080;
