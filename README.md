@@ -2,7 +2,7 @@
 
 Development needs a robust, scalable CI/CD infrastructure that can handle dynamic workloads while maintaining high availability, security, and cost efficiency.
 
-Jenkins is one of the most widely used CI/CD platforms, trusted by enterprises globally, with a mature ecosystem and strong community support. Its server-worker architecture supports distributed builds, enabling organizations to handle dynamic and large-scale workloads efficiently. Jenkins allows teams to define CI/CD processes as code (Jenkinsfiles), ensuring repeatability, version control, and governance.
+Jenkins is one of the most widely used CI/CD platforms, trusted by enterprises globally, with a mature ecosystem and strong community support. Its server-worker architecture supports distributed builds, making it possible to handle dynamic and large-scale workloads efficiently. Jenkins allows teams to define CI/CD processes as code (Jenkinsfiles), ensuring repeatability, version control, and governance.
 
 #### Operational Challenges with Traditional Jenkins Deployments
 
@@ -45,6 +45,93 @@ Jenkins is one of the most widely used CI/CD platforms, trusted by enterprises g
 * *IAM* Manages roles and policies for Jenkins server, workers, and Lambda function.
 * *Systems Manager* Stores and manages Jenkins credentials and configuration secrets.
 * *S3* Artifact storage and deployment target.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                    Internet                                         │
+└───────────────────────────────────────┬─────────────────────────────────────────────┘
+                                        │
+┌───────────────────────────────────────┴─────────────────────────────────────────────┐
+│                                    AWS VPC                                          │
+│                                                                                     │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│   │                            Internet Gateway                                 │   │
+│   └───────────────────────────────────┬─────────────────────────────────────────┘   │
+│                                       │                                             │
+│   ┌───────────────────────────────────┴─────────────────────────────────────────┐   │
+│   │                         Public Subnets (Multi-AZ)                           │   │
+│   │                                                                             │   │
+│   │   ┌─────────────────┐                    ┌─────────────────┐                │   │
+│   │   │   NAT Gateway   │                    │   Elastic IP    │                │   │
+│   │   │   (AZ-1)        │                    │                 │                │   │
+│   │   └─────────────────┘                    └─────────────────┘                │   │
+│   └────────────────────────────────────┬────────────────────────────────────────┘   │
+│                                        │                                            │
+│   ┌────────────────────────────────────┴────────────────────────────────────────┐   │
+│   │                         Private Subnets (Multi-AZ)                          │   │
+│   │                                                                             │   │
+│   │   ┌─────────────────────────────────────────────────────────────────────┐   │   │
+│   │   │   Jenkins Server                                                    │   │   │
+│   │   │   (EC2 Instance)                                                    │   │   │
+│   │   │                                                                     │   │   │
+│   │   │  • Custom AMI (jenkins-server)                                      │   │   │
+│   │   │  • IAM Role (SSM access)                                            │   │   │
+│   │   │  • Security Group (Jenkins UI, SSH access, WireGuard VPN)           │   │   │
+│   │   └─────────────────────────────────┬───────────────────────────────────┘   │   │
+│   │                                     │                                       │   │
+│   │  ┌──────────────────────────────────┴────────────────────────────────────┐  │   │
+│   │  │                          Auto Scaling Group                           │  │   │
+│   │  │                                                                       │  │   │
+│   │  │ ┌────────────────────────────────┐ ┌────────────────────────────────┐ │  │   │
+│   │  │ │ Jenkins Worker                 │ │ Jenkins Worker                 │ │  │   │
+│   │  │ │ (EC2 Instance)                 │ │ (EC2 Instance)                 │ │  │   │
+│   │  │ │                                │ │                                │ │  │   │
+│   │  │ │ • Custom AMI (jenkins-worker)  │ │ • Custom AMI (jenkins-worker)  │ │  │   │
+│   │  │ │ • Docker (node.js, AWS CLI)    │ │ • Docker (node.js, AWS CLI)    │ │  │   │
+│   │  │ │ • IAM Role (SSM and S3 access) │ │ • IAM Role (SSM and S3 access) │ │  │   │
+│   │  │ │ • Security Group (SSH access)  │ │ • Security Group (SSH access)  │ │  │   │
+│   │  │ └────────────────────────────────┘ └────────────────────────────────┘ │  │   │
+│   │  └───────────────────────────────────────────────────────────────────────┘  │   │
+│   │                                                                             │   │
+│   │  ┌───────────────────────────────────────────────────────────────────────┐  │   │
+│   │  │  Lambda Function                                                      │  │   │
+│   │  │  (GitHub Webhook Handler)                                             │  │   │
+│   │  │                                                                       │  │   │
+│   │  │  • Python 3.12 Runtime                                                │  │   │
+│   │  │  • VPC Configuration                                                  │  │   │
+│   │  │  • IAM Role (SSM and VPC access)                                      │  │   │
+│   │  └───────────────────────────────────────────────────────────────────────┘  │   │
+│   └─────────────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                   External Services                                 │
+│                                                                                     │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│   │  S3 Bucket                                                                  │   │
+│   │                                                                             │   │
+│   │  • Artifact storage and deployment target                                   │   │
+│   │                                                                             │   │
+│   └─────────────────────────────────────────────────────────────────────────────┘   │
+│                                                                                     │
+│   ┌─────────────────────────────────────────────────────────────────────────────┐   │
+│   │  API Gateway                                                                │   │
+│   │                                                                             │   │
+│   │  • REST API: /webhook endpoint                                              │   │
+│   │  • POST method                                                              │   │
+│   │  • Lambda integration                                                       │   │
+│   │  • Stage: dev                                                               │   │
+│   └───────────────────────────────────────┬─────────────────────────────────────┘   │
+│                                           │                                         │
+│   ┌───────────────────────────────────────┴─────────────────────────────────────┐   │
+│   │  GitHub                                                                     │   │
+│   │  (Webhook Source)                                                           │   │
+│   │                                                                             │   │
+│   └─────────────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Build custom Amazon Machine Images (AMI) with Packer
 

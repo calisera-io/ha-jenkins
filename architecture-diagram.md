@@ -76,35 +76,4 @@
 │   │  git@github.com:calisera-io/calisera-project-blog.git                       │   │
 │   └─────────────────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                              AWS Services                                          │
-│                                                                                     │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐                    │
-│  │   CloudWatch    │  │ Systems Manager │  │      IAM        │                    │
-│  │                 │  │                 │  │                 │                    │
-│  │ • CPU Alarms    │  │ • Parameter     │  │ • Roles         │                    │
-│  │ • Auto Scaling  │  │   Store         │  │ • Policies      │                    │
-│  │   Policies      │  │ • Credentials   │  │ • Instance      │                    │
-│  │                 │  │                 │  │   Profiles      │                    │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘                    │
-│                                                                                     │
-│  ┌─────────────────┐  ┌─────────────────┐                                         │
-│  │       S3        │  │      Route      │                                         │
-│  │                 │  │     Tables      │                                         │
-│  │ • blog.calisera │  │                 │                                         │
-│  │   .io bucket    │  │ • Public Route  │                                         │
-│  │ • Worker access │  │ • Private Route │                                         │
-│  │                 │  │                 │                                         │
-│  └─────────────────┘  └─────────────────┘                                         │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-
-Key Features:
-• Multi-AZ deployment for high availability
-• Auto Scaling based on CPU utilization (scale out at 80%, scale in at 20%)
-• Custom AMIs for Jenkins server and workers
-• Secure communication via SSH keys and VPN
-• GitHub webhook integration via API Gateway and Lambda
-• Systems Manager for credential management
-• S3 integration for artifact storage
 ```
