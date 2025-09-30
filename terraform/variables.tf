@@ -32,7 +32,7 @@ variable "vpc_name" {
   default     = "jenkins"
 }
 
-variable "cidr_block" {
+variable "vpc_cidr_block" {
   type        = string
   description = "VPC CIDR block"
   default     = "10.0.0.0/16"

@@ -30,7 +30,7 @@ if (!ready) {
     return
 }
 
-def jobName = "Calisera Blog Deployment Pipeline"
+def jobName = "Calisera Blog Deployment"
 def githubUrl = "https://github.com/calisera-io/calisera-project-blog.git"
 def credentialsId = "github-token"
 

@@ -33,144 +33,6 @@ locals {
   effective_ip = var.my_ip != "" ? var.my_ip : trimspace(data.http.my_ip.response_body)
 }
 
-# resource "aws_security_group" "proxy" {
-#   name        = "proxy-security-group-${var.vpc_name}"
-#   description = "Allow tcp/80 from my IP"
-#   vpc_id      = aws_vpc.custom.id
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   ingress {
-#     from_port   = 80
-#     to_port     = 80
-#     protocol    = "tcp"
-#     cidr_blocks = ["${local.effective_ip}/32"]
-#   }
-#   tags = {
-#     Name   = "proxy-security-group-${var.vpc_name}"
-#     Author = var.author
-#   }
-# }
-
-# data "template_file" "user_data_proxy" {
-#   template = file("user-data/proxy.sh.tpl")
-#   vars = {
-#     jenkins_private_ip = aws_instance.jenkins.private_ip
-#   }
-# }
-
-# resource "aws_instance" "proxy" {
-#   ami                         = data.aws_ami.proxy.id
-#   instance_type               = var.proxy_instance_type
-#   vpc_security_group_ids      = [aws_security_group.proxy.id]
-#   user_data_base64            = base64encode(data.template_file.user_data_proxy.rendered)
-#   subnet_id                   = values(aws_subnet.public_subnet)[0].id
-#   associate_public_ip_address = true
-#   iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
-#   root_block_device {
-#     volume_type           = var.proxy_root_block_device.volume_type
-#     volume_size           = var.proxy_root_block_device.volume_size
-#     encrypted             = var.proxy_root_block_device.encrypted
-#     delete_on_termination = var.proxy_root_block_device.delete_on_termination
-#   }
-#   tags = {
-#     Name   = "proxy-${var.vpc_name}"
-#     Author = var.author
-#   }
-#   depends_on = [aws_instance.jenkins]
-# }
-
-# resource "aws_security_group" "lb" {
-#   name        = "lb-security-group-${var.vpc_name}"
-#   description = "Allow tcp/80 and tcp/443 from everywhere"
-#   vpc_id      = aws_vpc.custom.id
-#   ingress {
-#     from_port   = "80"
-#     to_port     = "80"
-#     protocol    = "tcp"
-#     cidr_blocks = ["${local.effective_ip}/32"]
-#     #    cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   ingress {
-#     from_port   = "443"
-#     to_port     = "443"
-#     protocol    = "tcp"
-#     cidr_blocks = ["${local.effective_ip}/32"]
-#     #    cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   egress {
-#     from_port   = "0"
-#     to_port     = "0"
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   tags = {
-#     Name   = "lb-security-group-${var.vpc_name}"
-#     Author = var.author
-#   }
-# }
-
-# resource "aws_lb" "jenkins" {
-#   name               = "lb-${var.vpc_name}"
-#   internal           = false
-#   load_balancer_type = "application"
-#   security_groups    = [aws_security_group.lb.id]
-#   subnets            = values(aws_subnet.public_subnet)[*].id
-#   tags = {
-#     Name   = "lb-${var.vpc_name}"
-#     Author = var.author
-#   }
-# }
-
-# resource "aws_lb_target_group" "jenkins" {
-#   name     = "lb-target-group-${var.vpc_name}"
-#   port     = 8080
-#   protocol = "HTTP"
-#   vpc_id   = aws_vpc.custom.id
-#   health_check {
-#     path                = "/login/index.html"
-#     healthy_threshold   = 2
-#     unhealthy_threshold = 3
-#     timeout             = 5
-#     interval            = 30
-#   }
-#   tags = {
-#     Name   = "lb-target-group-${var.vpc_name}"
-#     Author = var.author
-#   }
-# }
-
-# resource "aws_lb_target_group_attachment" "jenkins" {
-#   target_group_arn = aws_lb_target_group.jenkins.arn
-#   target_id        = aws_instance.jenkins.id
-#   port             = 8080
-# }
-
-# resource "aws_lb_listener" "jenkins_http" {
-#   load_balancer_arn = aws_lb.jenkins.arn
-#   port              = "80"
-#   protocol          = "HTTP"
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.jenkins.arn
-#   }
-# }
-
-# resource "aws_lb_listener" "jenkins_https" {
-#   load_balancer_arn = aws_lb.jenkins.arn
-#   port              = "443"
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-#   certificate_arn   = var.ssl_certificate_arn
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.jenkins.arn
-#   }
-# }
-
 resource "aws_security_group" "jenkins" {
   name        = "jenkins-security-group-${var.vpc_name}"
   description = "Allow tcp/8080 from load balancer and tcp/22 from bastion"
@@ -206,9 +68,12 @@ resource "aws_security_group" "jenkins" {
 }
 
 resource "aws_instance" "jenkins" {
-  ami                         = data.aws_ami.jenkins.id
-  instance_type               = var.jenkins_instance_type
-  vpc_security_group_ids      = [aws_security_group.jenkins.id]
+  ami           = data.aws_ami.jenkins.id
+  instance_type = var.jenkins_instance_type
+  vpc_security_group_ids = [
+    aws_security_group.jenkins.id,
+    aws_security_group.webhook_handler.id
+  ]
   subnet_id                   = values(aws_subnet.private_subnet)[0].id
   associate_public_ip_address = false
   iam_instance_profile        = aws_iam_instance_profile.jenkins_profile.name
@@ -311,68 +176,124 @@ resource "aws_autoscaling_group" "worker" {
   depends_on        = [aws_instance.jenkins]
 }
 
-# locals {
-#   lambda_code = templatefile("${path.module}/lambda/github-webhook.py.tpl", {
-#     jenkins_private_ip = aws_instance.jenkins.private_ip
-#   })
-# }
+locals {
+  lambda_code = templatefile("${path.module}/lambda/github_webhook_handler.py.tpl", {
+    jenkins_private_ip = aws_instance.jenkins.private_ip
+  })
+}
 
-# data "archive_file" "lambda_zip" {
-#   type        = "zip"
-#   output_path = "${path.module}/lambda/github-webhook.zip"
-#   source {
-#     content  = local.lambda_code
-#     filename = "github-webhook.py"
-#   }
-# }
+data "archive_file" "webhook_handler_zip" {
+  type        = "zip"
+  output_path = "${path.module}/lambda/github_webhook_handler.zip"
+  source {
+    content  = local.lambda_code
+    filename = "github_webhook_handler.py"
+  }
+}
 
-# resource "aws_iam_role" "lambda" {
-#   name               = "lambda-role"
-#   assume_role_policy = file("lambda-policy.json")
-# }
+resource "aws_iam_role" "webhook_handler" {
+  name = "webhook-handler-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = [
+            "lambda.amazonaws.com",
+            "ssm.amazonaws.com"
+          ]
+        }
+      }
+    ]
+  })
+}
 
-# resource "aws_iam_role_policy_attachment" "lambda" {
-#   role       = aws_iam_role.lambda.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-# }
+resource "aws_iam_role_policy_attachment" "webhook_handler_ssm" {
+  role       = aws_iam_role.webhook_handler.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
 
-# resource "aws_security_group" "lambda" {
-#   name   = "lambda-security-group-${var.vpc_name}"
-#   vpc_id = aws_vpc.custom.id
-#   egress {
-#     from_port       = 8080
-#     to_port         = 8080
-#     protocol        = "tcp"
-#     cidr_blocks     = [values(aws_subnet.private_subnet)[0].cidr_block]
-#     security_groups = [aws_security_group.jenkins.id]
-#   }
-#   egress {
-#     from_port   = 443
-#     to_port     = 443
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   egress {
-#     from_port   = 80
-#     to_port     = 80
-#     protocol    = "tcp"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   tags = {
-#     Name   = "lambda-security-group-${var.vpc_name}"
-#     Author = var.author
-#   }
-# }
+resource "aws_iam_role_policy_attachment" "webhook_handler" {
+  role       = aws_iam_role.webhook_handler.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
 
-# resource "aws_lambda_function" "github-webhook" {
-#   filename         = data.archive_file.lambda_zip.output_path
-#   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-#   function_name    = "github-webhook"
-#   runtime          = "python3.12"
-#   handler          = "github-webhook.lambda_handler"
-#   role             = data.aws_iam_role.lambda.arn
-#   vpc_config {
-#     subnet_ids         = [values(aws_subnet.private_subnet)[0].id]
-#     security_group_ids = [aws_security_group.lambda.id]
-#   }
-# }
+resource "aws_iam_role_policy_attachment" "webhook_handler_vpc_access" {
+  role       = aws_iam_role.webhook_handler.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_security_group" "webhook_handler" {
+  name   = "webhook-handler-security-group-${var.vpc_name}"
+  vpc_id = aws_vpc.custom.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_lambda_function" "webhook_handler" {
+  filename         = data.archive_file.webhook_handler_zip.output_path
+  source_code_hash = data.archive_file.webhook_handler_zip.output_base64sha256
+  function_name    = "github_webhook_handler"
+  runtime          = "python3.12"
+  handler          = "github_webhook_handler.lambda_handler"
+  role             = aws_iam_role.webhook_handler.arn
+  timeout = 30
+  
+  vpc_config {
+    subnet_ids         = values(aws_subnet.private_subnet)[*].id
+    security_group_ids = [aws_security_group.webhook_handler.id]
+  }
+}
+
+resource "aws_api_gateway_rest_api" "webhook_api" {
+  name = "webhook-api"
+}
+
+resource "aws_api_gateway_resource" "webhook_resource" {
+  rest_api_id = aws_api_gateway_rest_api.webhook_api.id
+  parent_id   = aws_api_gateway_rest_api.webhook_api.root_resource_id
+  path_part   = "webhook"
+}
+
+resource "aws_api_gateway_method" "webhook_method" {
+  rest_api_id   = aws_api_gateway_rest_api.webhook_api.id
+  resource_id   = aws_api_gateway_resource.webhook_resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "lambda_integration" {
+  rest_api_id = aws_api_gateway_rest_api.webhook_api.id
+  resource_id = aws_api_gateway_resource.webhook_resource.id
+  http_method = aws_api_gateway_method.webhook_method.http_method
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.webhook_handler.invoke_arn
+}
+
+resource "aws_api_gateway_deployment" "webhook_deployment" {
+  depends_on  = [aws_api_gateway_integration.lambda_integration]
+  rest_api_id = aws_api_gateway_rest_api.webhook_api.id
+}
+
+resource "aws_api_gateway_stage" "webhook_stage" {
+  deployment_id = aws_api_gateway_deployment.webhook_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.webhook_api.id
+  stage_name    = "dev"
+}
+
+resource "aws_lambda_permission" "api_gateway" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.webhook_handler.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.webhook_api.execution_arn}/*/*"
+}
