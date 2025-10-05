@@ -12,7 +12,7 @@ Jenkins is one of the most widely used CI/CD platforms, trusted by enterprises g
 * *Security Complexity* Managing credentials, SSH keys, and secure communication between components.
 * *Infrastructure Drift* Manual configurations lead to inconsistent environments.
 
-#### Operational Gains with HA Jenkins Deployments
+#### Operational Gains with Automated HA Jenkins Deployment
 
 * *Zero-Touch Deployment* Fully automated Jenkins setup with pre-configured plugins, security, and pipelines.
 * *Elastic Scaling* Auto Scaling Groups dynamically adjust worker capacity based on CPU utilization.
@@ -43,7 +43,7 @@ Jenkins is one of the most widely used CI/CD platforms, trusted by enterprises g
 * *S3* Artifact storage and deployment target.
 
 ### Security
-* *IAM* Manages roles and policies for Jenkins server, workers, and Lambda function.
+* *IAM* Manages roles and policies for Jenkins server, workers, Lambda function and `packer` user.
 * *Systems Manager* Stores and manages Jenkins credentials and configuration secrets.
 
 ## System Architecture

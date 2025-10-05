@@ -9,7 +9,7 @@ swapon /swapfile
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
 # === upgrade ===
-dnf upgrade --releasever=2023.8.20250915 -y
+dnf upgrade --releasever=2023.9.20250929 -y
 
 # === install packages ===
 dnf install -y \

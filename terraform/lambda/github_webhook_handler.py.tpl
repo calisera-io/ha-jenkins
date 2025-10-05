@@ -85,13 +85,15 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "Invalid format"}
 
     event_type = headers.get("x-github-event", "")
-    forward_events = {"push", "pull_request"}
+    forward_events = {"push", "pull_request", "status"}
 
     if event_type in forward_events:
         if event_type == "push":
             print(f"Push to {payload['repository']['name']}")
         elif event_type == "pull_request":
             print(f"PR {payload['action']}: {payload['pull_request']['title']}")
+        elif event_type == "status":
+            print(f"Status update: {payload['state']} for {payload['sha'][:7]}")
 
         status, text = forward_to_jenkins(payload, event_type)
         print(f"Forwarded to Jenkins: {status} {text}")
