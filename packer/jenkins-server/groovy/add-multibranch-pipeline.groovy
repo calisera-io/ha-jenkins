@@ -32,7 +32,7 @@ if (!ready) {
     return
 }
 
-def jobName = "Calisera Blog Deployment"
+def jobName = "calisera-pull-request"
 
 def credentialsId = "github-token"
 def githubOwner = "calisera-io"

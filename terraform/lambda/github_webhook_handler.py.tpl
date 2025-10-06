@@ -89,7 +89,7 @@ def lambda_handler(event, context):
 
     if event_type in forward_events:
         if event_type == "push":
-            print(f"Push to {payload['repository']['name']}")
+            print(f"Push to {payload['repository']['name']} on {ref}")
         elif event_type == "pull_request":
             print(f"PR {payload['action']}: {payload['pull_request']['title']}")
         elif event_type == "status":
